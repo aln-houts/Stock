@@ -1,13 +1,15 @@
-const inventory = {};
+let inventory = JSON.parse(localStorage.getItem("inventory")) || {};
 
 document.getElementById("addForm").addEventListener("submit", function (e) {
   e.preventDefault();
+
   const style = document.getElementById("style").value.trim();
   const color = document.getElementById("color").value;
   const size = document.getElementById("size").value;
   const quantity = parseInt(document.getElementById("quantity").value, 10);
 
   const key = style + "::" + color;
+
   if (!inventory[key]) {
     inventory[key] = {
       style,
@@ -19,6 +21,10 @@ document.getElementById("addForm").addEventListener("submit", function (e) {
   }
 
   inventory[key].sizes[size] += quantity;
+
+  // Save updated inventory to localStorage
+  localStorage.setItem("inventory", JSON.stringify(inventory));
+
   renderInventory();
   e.target.reset();
 });
@@ -33,7 +39,7 @@ function renderInventory() {
 
     const header = document.createElement("thead");
     header.innerHTML = `
-      <tr><th colspan="10">${item.style} - ${item.color}</th></tr>
+      <tr><th colspan="9">${item.style} - ${item.color}</th></tr>
       <tr>
         <th>XS</th><th>S</th><th>M</th><th>L</th><th>XL</th>
         <th>XX</th><th>3X</th><th>4X</th><th>5X</th>
@@ -43,13 +49,18 @@ function renderInventory() {
 
     const body = document.createElement("tbody");
     const row = document.createElement("tr");
-    ["XS","S","M","L","XL","XX","3X","4X","5X"].forEach(size => {
+
+    ["XS", "S", "M", "L", "XL", "XX", "3X", "4X", "5X"].forEach(size => {
       const td = document.createElement("td");
       td.textContent = item.sizes[size];
       row.appendChild(td);
     });
+
     body.appendChild(row);
     table.appendChild(body);
     display.appendChild(table);
   });
 }
+
+// Render on page load
+renderInventory();
