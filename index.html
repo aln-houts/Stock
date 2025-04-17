@@ -15,20 +15,32 @@
 </script>
 </head>
 <body>
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-3">
-    <a class="navbar-brand" href="#">Inventory App</a>
-    <div class="collapse navbar-collapse">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item"><a class="nav-link active" href="#">Blank Tees</a></li>
-        <li class="nav-item"><a class="nav-link disabled" href="#">Tanks</a></li>
-        <li class="nav-item"><a class="nav-link disabled" href="#">Hoodies</a></li>
-        <li class="nav-item"><a class="nav-link disabled" href="#">Hats</a></li>
-        <li class="nav-item"><a class="nav-link disabled" href="#">Bags</a></li>
-        <li class="nav-item"><a class="nav-link disabled" href="#">Print Tees</a></li>
-        <li class="nav-item"><a class="nav-link disabled" href="#">Transfers</a></li>
-      </ul>
-    </div>
-  </nav>
+<!-- Hamburger Sidebar Navigation -->
+<nav class="navbar navbar-dark bg-dark px-3">
+  <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <span class="navbar-brand">Inventory App</span>
+</nav>
+
+<div class="offcanvas offcanvas-start bg-dark text-white" tabindex="-1" id="sidebarMenu">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title">Menu</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+  </div>
+  <div class="offcanvas-body">
+    <ul class="nav flex-column">
+      <li class="nav-item"><a class="nav-link text-white" href="index.html">Blank Tees</a></li>
+      <li class="nav-item"><a class="nav-link text-white" href="tanks.html">Tanks</a></li>
+      <li class="nav-item"><a class="nav-link text-white" href="hoodies.html">Hoodies</a></li>
+      <li class="nav-item"><a class="nav-link text-white" href="hats.html">Hats</a></li>
+      <li class="nav-item"><a class="nav-link text-white" href="bags.html">Bags</a></li>
+      <li class="nav-item"><a class="nav-link text-white" href="print-tees.html">Print Tees</a></li>
+      <li class="nav-item"><a class="nav-link text-white" href="transfers.html">Transfers</a></li>
+    </ul>
+  </div>
+</div>
+
 
   <main class="container mt-4">
     <section id="form-section">
