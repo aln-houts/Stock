@@ -1,5 +1,5 @@
 
-let hoodieInventory = JSON.parse(localStorage.getItem("hoodieInventory")) || {};
+let inventory = JSON.parse(localStorage.getItem("hoodieInventory")) || {};
 
 document.getElementById("addForm").addEventListener("submit", function (e) {
   e.preventDefault();
@@ -9,8 +9,8 @@ document.getElementById("addForm").addEventListener("submit", function (e) {
   const quantity = parseInt(document.getElementById("quantity").value, 10);
 
   const key = style + "::" + color;
-  if (!hoodieInventory[key]) {
-    hoodieInventory[key] = {
+  if (!inventory[key]) {
+    inventory[key] = {
       style,
       color,
       sizes: {
@@ -19,28 +19,28 @@ document.getElementById("addForm").addEventListener("submit", function (e) {
     };
   }
 
-  hoodieInventory[key].sizes[size] += quantity;
-  localStorage.setItem("hoodieInventory", JSON.stringify(hoodieInventory));
+  inventory[key].sizes[size] += quantity;
+  localStorage.setItem("hoodieInventory", JSON.stringify(inventory));
   renderInventory();
   e.target.reset();
 });
 
 function renderInventory() {
-  const display = document.getElementById("hoodieInventoryDisplay");
+  const display = document.getElementById("inventoryDisplay");
   display.innerHTML = "";
 
-  Object.entries(hoodieInventory).forEach(([key, item]) => {
+  Object.entries(inventory).forEach(([key, item]) => {
     const table = document.createElement("table");
     table.className = "table table-bordered table-striped mt-4";
 
     const header = document.createElement("thead");
-    header.innerHTML = \`
-      <tr><th colspan="9">\${item.style} - \${item.color}</th></tr>
+    header.innerHTML = `
+      <tr><th colspan="9">${item.style} - ${item.color}</th></tr>
       <tr>
         <th>XS</th><th>S</th><th>M</th><th>L</th><th>XL</th>
         <th>XX</th><th>3X</th><th>4X</th><th>5X</th>
       </tr>
-    \`;
+    `;
     table.appendChild(header);
 
     const body = document.createElement("tbody");
@@ -58,7 +58,7 @@ function renderInventory() {
     const deleteCell = document.createElement("td");
     deleteCell.colSpan = 9;
     deleteCell.className = "text-center";
-    deleteCell.innerHTML = \`<button class="btn btn-sm btn-danger" onclick="deleteEntry('\${key}')">Delete Entry</button>\`;
+    deleteCell.innerHTML = `<button class="btn btn-sm btn-danger" onclick="deleteEntry('${key}')">Delete Entry</button>`;
     deleteRow.appendChild(deleteCell);
     body.appendChild(deleteRow);
 
@@ -69,8 +69,8 @@ function renderInventory() {
 
 function deleteEntry(key) {
   if (confirm("Are you sure you want to delete this entry?")) {
-    delete hoodieInventory[key];
-    localStorage.setItem("hoodieInventory", JSON.stringify(hoodieInventory));
+    delete inventory[key];
+    localStorage.setItem("hoodieInventory", JSON.stringify(inventory));
     renderInventory();
   }
 }
