@@ -10,10 +10,17 @@
 <body class="p-4">
   <h1 class="mb-4">Inventory Overview</h1>
   <button id="syncBtn" class="btn btn-primary mb-3">Sync from GitHub</button>
+  <button id="saveBtn" class="btn btn-success mb-3 ms-2">Save to GitHub</button>
   <div id="status" class="mb-4 text-success fw-bold"></div>
   <pre id="output" class="bg-light p-3 rounded border"></pre>
 
   <script>
+    const token = "YOUR_PERSONAL_ACCESS_TOKEN_HERE"; // Replace before testing
+    const owner = "aln-houts";
+    const repo = "Stock";
+    const path = "data/inventory.json";
+    const branch = "main";
+
     document.getElementById("syncBtn").addEventListener("click", () => {
       fetch("https://raw.githubusercontent.com/aln-houts/Stock/main/data/inventory.json")
         .then(res => res.json())
@@ -31,6 +38,50 @@
         .catch(err => {
           document.getElementById("status").textContent = "Failed to sync: " + err.message;
         });
+    });
+
+    document.getElementById("saveBtn").addEventListener("click", async () => {
+      const data = {
+        tees: JSON.parse(localStorage.getItem("inventory") || "{}"),
+        tanks: JSON.parse(localStorage.getItem("tankInventory") || "{}"),
+        hoodies: JSON.parse(localStorage.getItem("hoodieInventory") || "{}"),
+        print: JSON.parse(localStorage.getItem("printInventory") || "{}"),
+        hats: JSON.parse(localStorage.getItem("hatInventory") || "{}"),
+        bags: JSON.parse(localStorage.getItem("bagInventory") || "{}"),
+        transfers: JSON.parse(localStorage.getItem("transferInventory") || "{}")
+      };
+
+      const json = JSON.stringify(data, null, 2);
+
+      try {
+        const shaResponse = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const { sha } = await shaResponse.json();
+
+        const result = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            message: "Update inventory via web app",
+            content: btoa(unescape(encodeURIComponent(json))),
+            sha,
+            branch
+          })
+        });
+
+        if (result.ok) {
+          document.getElementById("status").textContent = "Inventory saved to GitHub!";
+        } else {
+          const error = await result.json();
+          document.getElementById("status").textContent = "Error saving to GitHub: " + error.message;
+        }
+      } catch (err) {
+        document.getElementById("status").textContent = "Error: " + err.message;
+      }
     });
   </script>
 </body>
