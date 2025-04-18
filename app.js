@@ -4,7 +4,7 @@ let inventory = JSON.parse(localStorage.getItem("inventory")) || {};
 document.getElementById("addForm").addEventListener("submit", function (e) {
   e.preventDefault();
   const style = document.getElementById("style").value.trim();
-  const color = document.getElementById("color").value;
+  const color = document.getElementById("color").value.trim();
   const size = document.getElementById("size").value;
   const quantity = parseInt(document.getElementById("quantity").value, 10);
 
@@ -21,6 +21,8 @@ document.getElementById("addForm").addEventListener("submit", function (e) {
 
   inventory[key].sizes[size] += quantity;
   localStorage.setItem("inventory", JSON.stringify(inventory));
+  saveSuggestion("styleSuggestions", style);
+  saveSuggestion("colorSuggestions", color);
   renderInventory();
   e.target.reset();
 });
@@ -71,7 +73,6 @@ function renderInventory() {
   display.appendChild(table);
 }
 
-
 function deleteEntry(key) {
   if (confirm("Are you sure you want to delete this entry?")) {
     delete inventory[key];
@@ -79,5 +80,27 @@ function deleteEntry(key) {
     renderInventory();
   }
 }
+
+function saveSuggestion(key, value) {
+  const list = JSON.parse(localStorage.getItem(key) || "[]");
+  if (!list.includes(value)) {
+    list.push(value);
+    localStorage.setItem(key, JSON.stringify(list));
+  }
+}
+
+function loadSuggestions(key, datalistId) {
+  const list = JSON.parse(localStorage.getItem(key) || "[]");
+  const datalist = document.getElementById(datalistId);
+  datalist.innerHTML = "";
+  list.forEach(item => {
+    const option = document.createElement("option");
+    option.value = item;
+    datalist.appendChild(option);
+  });
+}
+
+loadSuggestions("styleSuggestions", "styleSuggestions");
+loadSuggestions("colorSuggestions", "colorSuggestions");
 
 renderInventory();
