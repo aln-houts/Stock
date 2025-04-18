@@ -3,16 +3,18 @@ let inventory = JSON.parse(localStorage.getItem("tankInventory")) || {};
 
 document.getElementById("addForm").addEventListener("submit", function (e) {
   e.preventDefault();
-  const style = document.getElementById("style").value.trim();
-  const color = document.getElementById("color").value;
+  const styleInput = document.getElementById("style").value.trim();
+  const colorInput = document.getElementById("color").value.trim();
+  const style = styleInput.toLowerCase();
+  const color = colorInput.toLowerCase();
   const size = document.getElementById("size").value;
   const quantity = parseInt(document.getElementById("quantity").value, 10);
 
   const key = style + "::" + color;
   if (!inventory[key]) {
     inventory[key] = {
-      style,
-      color,
+      style: styleInput,
+      color: colorInput,
       sizes: {
         XS: 0, S: 0, M: 0, L: 0, XL: 0, XX: 0, "3X": 0, "4X": 0, "5X": 0
       }
@@ -21,6 +23,8 @@ document.getElementById("addForm").addEventListener("submit", function (e) {
 
   inventory[key].sizes[size] += quantity;
   localStorage.setItem("tankInventory", JSON.stringify(inventory));
+  saveSuggestion("styleSuggestions", styleInput);
+  saveSuggestion("colorSuggestions", colorInput);
   renderInventory();
   e.target.reset();
 });
@@ -78,5 +82,27 @@ function deleteEntry(key) {
     renderInventory();
   }
 }
+
+function saveSuggestion(key, value) {
+  const list = JSON.parse(localStorage.getItem(key) || "[]");
+  if (!list.includes(value)) {
+    list.push(value);
+    localStorage.setItem(key, JSON.stringify(list));
+  }
+}
+
+function loadSuggestions(key, datalistId) {
+  const list = JSON.parse(localStorage.getItem(key) || "[]");
+  const datalist = document.getElementById(datalistId);
+  datalist.innerHTML = "";
+  list.forEach(item => {
+    const option = document.createElement("option");
+    option.value = item;
+    datalist.appendChild(option);
+  });
+}
+
+loadSuggestions("styleSuggestions", "styleSuggestions");
+loadSuggestions("colorSuggestions", "colorSuggestions");
 
 renderInventory();
