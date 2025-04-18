@@ -1,0 +1,41 @@
+{
+  "tees": {
+    "6400::Black": {
+      "style": "6400",
+      "color": "Black",
+      "sizes": {
+        "XS": 2,
+        "S": 5,
+        "M": 10,
+        "L": 12,
+        "XL": 6,
+        "XX": 3,
+        "3X": 1,
+        "4X": 0,
+        "5X": 0
+      }
+    }
+  },
+  "tanks": {
+    "G500::White": {
+      "style": "G500",
+      "color": "White",
+      "sizes": {
+        "XS": 0,
+        "S": 2,
+        "M": 4,
+        "L": 3,
+        "XL": 1,
+        "XX": 0,
+        "3X": 0,
+        "4X": 0,
+        "5X": 0
+      }
+    }
+  },
+  "hoodies": {},
+  "print": {},
+  "hats": {},
+  "bags": {},
+  "transfers": {}
+}
