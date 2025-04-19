@@ -163,5 +163,10 @@
 
     showTotals();
   </script>
+    <script>
+  fetch('menu.html')
+    .then(res => res.text())
+    .then(html => document.getElementById('menu-placeholder').innerHTML = html);
+    </script>
 </body>
 </html>
