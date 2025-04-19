@@ -166,8 +166,40 @@
       }
     }
   },
-  "tanks": {},
-  "hoodies": {},
+  "tanks": {
+    "g520::black": {
+      "style": "G520",
+      "color": "Black",
+      "sizes": {
+        "XS": 0,
+        "S": 0,
+        "M": 0,
+        "L": 1,
+        "XL": 0,
+        "XX": 0,
+        "3X": 0,
+        "4X": 0,
+        "5X": 0
+      }
+    }
+  },
+  "hoodies": {
+    "996::charcoal": {
+      "style": "996",
+      "color": "Charcoal",
+      "sizes": {
+        "XS": 0,
+        "S": 0,
+        "M": 0,
+        "L": 1,
+        "XL": 0,
+        "XX": 0,
+        "3X": 0,
+        "4X": 0,
+        "5X": 0
+      }
+    }
+  },
   "print": {},
   "hats": {},
   "bags": {},
