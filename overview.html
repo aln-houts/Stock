@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,10 +8,7 @@
 </head>
 <body class="p-4">
   <div id="menu-placeholder"></div>
-
   <h1 class="mb-4">Inventory Overview</h1>
-
-  <!-- Token Setup Section -->
   <div class="card mb-4">
     <div class="card-header">Token Setup</div>
     <div class="card-body">
@@ -23,155 +19,30 @@
       <button class="btn btn-outline-primary" onclick="saveToken()">Save Token</button>
     </div>
   </div>
-
-  <!-- PIN Unlock Section -->
   <div class="mb-4">
     <label for="pinInput" class="form-label">Enter PIN to unlock save access</label>
     <input type="password" id="pinInput" class="form-control mb-2" maxlength="4" />
     <button class="btn btn-outline-secondary" onclick="unlockToken()">Unlock</button>
+    <button class="btn btn-danger mt-2" onclick="resetToken()">Reset Credentials</button>
   </div>
-
   <div class="mb-3">
     <button id="syncBtn" class="btn btn-primary">Sync from GitHub</button>
     <button id="saveBtn" class="btn btn-success ms-2" disabled>Save to GitHub</button>
   </div>
-
-  <div id="status" class="mb-3 text-success fw-bold"></div>
-
-  <div class="row" id="totalsRow">
-    <div class="col-md-4 mb-3"><div class="card text-white bg-primary"><div class="card-body"><h5 class="card-title">Total Shirts</h5><p id="totalShirts" class="card-text fs-4">0</p></div></div></div>
-    <div class="col-md-4 mb-3"><div class="card text-white bg-success"><div class="card-body"><h5 class="card-title">Total Tanks</h5><p id="totalTanks" class="card-text fs-4">0</p></div></div></div>
-    <div class="col-md-4 mb-3"><div class="card text-white bg-secondary"><div class="card-body"><h5 class="card-title">Total Hoodies</h5><p id="totalHoodies" class="card-text fs-4">0</p></div></div></div>
-    <div class="col-md-4 mb-3"><div class="card text-white bg-warning"><div class="card-body"><h5 class="card-title">Total Print Tees</h5><p id="totalPrints" class="card-text fs-4">0</p></div></div></div>
-    <div class="col-md-4 mb-3"><div class="card text-white bg-danger"><div class="card-body"><h5 class="card-title">Total Transfers</h5><p id="totalTransfers" class="card-text fs-4">0</p></div></div></div>
+  <div id="status" class="mb-3 fw-bold"></div>
+  <div class="container-fluid">
+    <div class="row" id="totalsRow">
+      <div class="col-md-4 mb-3"><div class="card text-white bg-primary"><div class="card-body"><h5 class="card-title">Total Shirts</h5><p id="totalShirts" class="card-text fs-4">0</p></div></div></div>
+      <div class="col-md-4 mb-3"><div class="card text-white bg-success"><div class="card-body"><h5 class="card-title">Total Tanks</h5><p id="totalTanks" class="card-text fs-4">0</p></div></div></div>
+      <div class="col-md-4 mb-3"><div class="card text-white bg-secondary"><div class="card-body"><h5 class="card-title">Total Hoodies</h5><p id="totalHoodies" class="card-text fs-4">0</p></div></div></div>
+      <div class="col-md-4 mb-3"><div class="card text-white bg-warning"><div class="card-body"><h5 class="card-title">Total Print Tees</h5><p id="totalPrints" class="card-text fs-4">0</p></div></div></div>
+      <div class="col-md-4 mb-3"><div class="card text-white bg-danger"><div class="card-body"><h5 class="card-title">Total Transfers</h5><p id="totalTransfers" class="card-text fs-4">0</p></div></div></div>
+    </div>
   </div>
-
-  <pre id="output" class="bg-light p-3 rounded border"></pre>
-
   <script>
-    fetch("menu.html").then(res => res.text()).then(html => document.getElementById("menu-placeholder").innerHTML = html);
-
-    const owner = "aln-houts";
-    const repo = "Stock";
-    const path = "data/inventory.json";
-    const branch = "main";
-
-    function saveToken() {
-      const token = document.getElementById("setupToken").value;
-      const pin = document.getElementById("setupPIN").value;
-      if (token && pin.length === 4) {
-        localStorage.setItem("ghToken", token);
-        localStorage.setItem("ghPin", pin);
-        alert("Token and PIN saved successfully.");
-        document.getElementById("setupToken").value = "";
-        document.getElementById("setupPIN").value = "";
-      } else {
-        alert("Please enter a token and a 4-digit PIN.");
-      }
-    }
-
-    function unlockToken() {
-      const enteredPin = document.getElementById("pinInput").value;
-      const storedPin = localStorage.getItem("ghPin");
-      const token = localStorage.getItem("ghToken");
-
-      if (enteredPin === storedPin && token) {
-        window.githubToken = token;
-        document.getElementById("saveBtn").disabled = false;
-        document.getElementById("status").textContent = "Token unlocked. Save button is active.";
-      } else {
-        alert("Incorrect PIN or token not set.");
-      }
-    }
-
-    function showTotals() {
-      const getSum = (obj) => Object.values(obj || {}).reduce((sum, item) => {
-        if (item.sizes) return sum + Object.values(item.sizes).reduce((a, b) => a + b, 0);
-        else return sum + (item.quantity || 0);
-      }, 0);
-
-      document.getElementById("totalShirts").textContent = getSum(JSON.parse(localStorage.getItem("inventory")));
-      document.getElementById("totalTanks").textContent = getSum(JSON.parse(localStorage.getItem("tankInventory")));
-      document.getElementById("totalHoodies").textContent = getSum(JSON.parse(localStorage.getItem("hoodieInventory")));
-      document.getElementById("totalPrints").textContent = getSum(JSON.parse(localStorage.getItem("printInventory")));
-      document.getElementById("totalTransfers").textContent = getSum(JSON.parse(localStorage.getItem("transferInventory")));
-    }
-
-    document.getElementById("syncBtn").addEventListener("click", () => {
-      fetch("https://raw.githubusercontent.com/aln-houts/Stock/main/data/inventory.json")
-        .then(res => res.json())
-        .then(data => {
-          localStorage.setItem("inventory", JSON.stringify(data.tees || {}));
-          localStorage.setItem("tankInventory", JSON.stringify(data.tanks || {}));
-          localStorage.setItem("hoodieInventory", JSON.stringify(data.hoodies || {}));
-          localStorage.setItem("printInventory", JSON.stringify(data.print || {}));
-          localStorage.setItem("hatInventory", JSON.stringify(data.hats || {}));
-          localStorage.setItem("bagInventory", JSON.stringify(data.bags || {}));
-          localStorage.setItem("transferInventory", JSON.stringify(data.transfers || {}));
-          document.getElementById("output").textContent = JSON.stringify(data, null, 2);
-          document.getElementById("status").textContent = "Inventory synced from GitHub!";
-          showTotals();
-        })
-        .catch(err => {
-          document.getElementById("status").textContent = "Failed to sync: " + err.message;
-        });
+    document.addEventListener("DOMContentLoaded", () => {
+      fetch("menu.html").then(res => res.text()).then(html => document.getElementById("menu-placeholder").innerHTML = html);
     });
-
-    document.getElementById("saveBtn").addEventListener("click", async () => {
-      const data = {
-        tees: JSON.parse(localStorage.getItem("inventory") || "{}"),
-        tanks: JSON.parse(localStorage.getItem("tankInventory") || "{}"),
-        hoodies: JSON.parse(localStorage.getItem("hoodieInventory") || "{}"),
-        print: JSON.parse(localStorage.getItem("printInventory") || "{}"),
-        hats: JSON.parse(localStorage.getItem("hatInventory") || "{}"),
-        bags: JSON.parse(localStorage.getItem("bagInventory") || "{}"),
-        transfers: JSON.parse(localStorage.getItem("transferInventory") || "{}")
-      };
-
-      const json = JSON.stringify(data, null, 2);
-
-      try {
-        const shaResponse = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
-          headers: { Authorization: `Bearer ${window.githubToken}` }
-        });
-        const { sha } = await shaResponse.json();
-
-        const result = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${window.githubToken}`,
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            message: "Update inventory via web app",
-            content: btoa(unescape(encodeURIComponent(json))),
-            sha,
-            branch
-          })
-        });
-
-        if (result.ok) {
-          document.getElementById("status").textContent = "Inventory saved to GitHub!";
-        } else {
-          const error = await result.json();
-          document.getElementById("status").textContent = "Error saving to GitHub: " + error.message;
-        }
-      } catch (err) {
-        document.getElementById("status").textContent = "Error: " + err.message;
-      }
-    });
-
-    showTotals();
   </script>
-    <script>
-  document.addEventListener("DOMContentLoaded", () => {
-  fetch("menu.html")
-    .then(res => res.text())
-    .then(html => document.getElementById("menu-placeholder").innerHTML = html);
-});
-  fetch('menu.html')
-    .then(res => res.text())
-    .then(html => document.getElementById('menu-placeholder').innerHTML = html);
-    </script>
 </body>
 </html>
