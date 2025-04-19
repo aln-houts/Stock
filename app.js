@@ -1,11 +1,9 @@
-
 let inventory = JSON.parse(localStorage.getItem("inventory")) || {};
 
 document.getElementById("addForm").addEventListener("submit", function (e) {
   e.preventDefault();
   const styleInput = document.getElementById("style").value.trim();
   const colorInput = document.getElementById("color").value.trim();
-
   const style = styleInput.toLowerCase();
   const color = colorInput.toLowerCase();
   const size = document.getElementById("size").value;
@@ -14,18 +12,18 @@ document.getElementById("addForm").addEventListener("submit", function (e) {
   const key = style + "::" + color;
   if (!inventory[key]) {
     inventory[key] = {
-      style: styleInput, // preserve original casing
+      style: styleInput,
       color: colorInput,
-      sizes: {
-        XS: 0, S: 0, M: 0, L: 0, XL: 0, XX: 0, "3X": 0, "4X": 0, "5X": 0
-      }
+      sizes: { XS: 0, S: 0, M: 0, L: 0, XL: 0, XX: 0, "3X": 0, "4X": 0, "5X": 0 }
     };
   }
 
   inventory[key].sizes[size] += quantity;
   localStorage.setItem("inventory", JSON.stringify(inventory));
-  saveSuggestion("styleSuggestions", styleInput);
-  saveSuggestion("colorSuggestions", colorInput);
+
+  saveSuggestion("teeStyleSuggestions", styleInput);
+  saveSuggestion("teeColors_" + style, colorInput);
+
   renderInventory();
   e.target.reset();
 });
@@ -50,7 +48,6 @@ function renderInventory() {
   table.appendChild(header);
 
   const body = document.createElement("tbody");
-
   Object.entries(inventory).forEach(([key, item]) => {
     const row = document.createElement("tr");
     row.innerHTML = `
@@ -65,23 +62,18 @@ function renderInventory() {
       <td>${item.sizes["3X"]}</td>
       <td>${item.sizes["4X"]}</td>
       <td>${item.sizes["5X"]}</td>
-      <td>
-        <button class="btn btn-sm btn-danger" onclick="deleteEntry('${key}')">Delete</button>
-      </td>
+      <td><button class="btn btn-sm btn-danger" onclick="deleteEntry('${key}')">Delete</button></td>
     `;
     body.appendChild(row);
   });
-
   table.appendChild(body);
   display.appendChild(table);
 }
 
 function deleteEntry(key) {
-  if (confirm("Are you sure you want to delete this entry?")) {
-    delete inventory[key];
-    localStorage.setItem("inventory", JSON.stringify(inventory));
-    renderInventory();
-  }
+  delete inventory[key];
+  localStorage.setItem("inventory", JSON.stringify(inventory));
+  renderInventory();
 }
 
 function saveSuggestion(key, value) {
@@ -103,7 +95,11 @@ function loadSuggestions(key, datalistId) {
   });
 }
 
-loadSuggestions("styleSuggestions", "styleSuggestions");
-loadSuggestions("colorSuggestions", "colorSuggestions");
+loadSuggestions("teeStyleSuggestions", "styleSuggestions");
+
+document.getElementById("style").addEventListener("change", function () {
+  const style = this.value.trim().toLowerCase();
+  loadSuggestions("teeColors_" + style, "colorSuggestions");
+});
 
 renderInventory();
