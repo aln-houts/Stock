@@ -10,43 +10,47 @@
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
 </head>
-<body class="p-4">
+<body>
   <div id="menu-placeholder"></div>
 
-  <h2 class="mb-4">Add Print Tee</h2>
-  <form id="addForm" class="row g-3">
-    <div class="col-md-4">
-      <label for="style" class="form-label">Style</label>
-      <input type="text" id="style" class="form-control" list="styleSuggestions" required />
-      <datalist id="styleSuggestions"></datalist>
-    </div>
-    <div class="col-md-4">
-      <label for="color" class="form-label">Color</label>
-      <input type="text" id="color" class="form-control" list="colorSuggestions" required />
-      <datalist id="colorSuggestions"></datalist>
-    </div>
-    <div class="col-md-4">
-      <label for="size" class="form-label">Size</label>
-      <select id="size" class="form-select">
-        <option>XS</option><option>S</option><option>M</option><option>L</option>
-        <option>XL</option><option>XX</option><option>3X</option><option>4X</option><option>5X</option>
-      </select>
-    </div>
-    <div class="col-md-4">
-      <label for="quantity" class="form-label">Quantity</label>
-      <input type="number" id="quantity" class="form-control" required />
-    </div>
-    <div class="col-12">
-      <button type="submit" class="btn btn-primary">Add to Inventory</button>
-    </div>
-  </form>
+  <main class="container mt-4">
+    <h2 class="mb-4">Add Print Tee</h2>
+    <form id="addForm" class="row g-3">
+      <div class="col-md-4">
+        <label for="style" class="form-label">Style</label>
+        <input type="text" id="style" class="form-control" list="styleSuggestions" required />
+        <datalist id="styleSuggestions"></datalist>
+      </div>
+      <div class="col-md-4">
+        <label for="color" class="form-label">Color</label>
+        <input type="text" id="color" class="form-control" list="colorSuggestions" required />
+        <datalist id="colorSuggestions"></datalist>
+      </div>
+      <div class="col-md-4">
+        <label for="size" class="form-label">Size</label>
+        <select id="size" class="form-select">
+          <option>XS</option><option>S</option><option>M</option><option>L</option>
+          <option>XL</option><option>XX</option><option>3X</option><option>4X</option><option>5X</option>
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label for="quantity" class="form-label">Quantity</label>
+        <input type="number" id="quantity" class="form-control" required />
+      </div>
+      <div class="col-12">
+        <button type="submit" class="btn btn-primary">Add to Inventory</button>
+      </div>
+    </form>
 
-  <div class="mt-5">
-    <h2>Inventory Display</h2>
-    <div id="inventoryDisplay" class="table-responsive"></div>
-  </div>
+    <hr class="my-5" />
 
-  <script src="print.js?v=1.0.0"></script>
+    <section id="display-section">
+      <h2>Inventory Display</h2>
+      <div id="inventoryDisplay" class="table-responsive"></div>
+    </section>
+  </main>
+
+  <script src="print.js?v=1.0.1"></script>
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       fetch("menu.html")
