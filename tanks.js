@@ -14,7 +14,7 @@ document.getElementById("addForm").addEventListener("submit", function (e) {
     inventory[keyStr] = {
       style: styleInput,
       color: colorInput,
-      sizes: {{ XS: 0, S: 0, M: 0, L: 0, XL: 0, XX: 0, '3X': 0, '4X': 0, '5X': 0 }}
+      sizes: { XS: 0, S: 0, M: 0, L: 0, XL: 0, XX: 0, '3X': 0, '4X': 0, '5X': 0 }
     };
   }
 
