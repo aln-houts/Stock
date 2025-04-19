@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,15 +14,13 @@
   <div id="menu-placeholder"></div>
 
   <main class="container mt-4">
-    <h2 class="mb-4">Add Transfers</h2>
+    <h2 class="mb-4">Add Transfer</h2>
     <form id="addForm" class="row g-3">
       <div class="col-md-4">
-        <label for="style" class="form-label">Style</label>
-        <input type="text" id="style" class="form-control" list="styleSuggestions" required />
-        <datalist id="styleSuggestions"></datalist>
+        <label for="title" class="form-label">Title</label>
+        <input type="text" id="title" class="form-control" list="titleSuggestions" required />
+        <datalist id="titleSuggestions"></datalist>
       </div>
-      
-      
       <div class="col-md-4">
         <label for="quantity" class="form-label">Quantity</label>
         <input type="number" id="quantity" class="form-control" required />

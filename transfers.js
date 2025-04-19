@@ -1,34 +1,22 @@
 
-let inventory = JSON.parse(localStorage.getItem("transferInventory")) || {};
+let inventory = JSON.parse(localStorage.getItem("transfersInventory")) || {};
 
 document.getElementById("addForm").addEventListener("submit", function (e) {
   e.preventDefault();
-  const styleInput = document.getElementById("style")?.value.trim() || "";
-  const colorInput = document.getElementById("color")?.value.trim() || "";
-  const style = styleInput.toLowerCase();
-  const color = colorInput.toLowerCase();
-  const designInput = document.getElementById("design")?.value.trim() || "";
+  const titleInput = document.getElementById("title").value.trim();
+  const title = titleInput.toLowerCase();
   const quantity = parseInt(document.getElementById("quantity").value, 10);
 
-  const key = designInput ? designInput.toLowerCase() : (style + "::" + color);
-
-  if (!inventory[key]) {
-    inventory[key] = designInput ? {
-      design: designInput,
-      quantity: 0
-    } : {
-      style: styleInput,
-      color: colorInput,
+  if (!inventory[title]) {
+    inventory[title] = {
+      title: titleInput,
       quantity: 0
     };
   }
 
-  inventory[key].quantity += quantity;
-  localStorage.setItem("transferInventory", JSON.stringify(inventory));
-
-  if (styleInput) saveSuggestion("styleSuggestions", styleInput);
-  if (colorInput) saveSuggestion("colorSuggestions", colorInput);
-
+  inventory[title].quantity += quantity;
+  localStorage.setItem("transfersInventory", JSON.stringify(inventory));
+  saveSuggestion("transfersTitleSuggestions", titleInput);
   renderInventory();
   e.target.reset();
 });
@@ -43,8 +31,7 @@ function renderInventory() {
   const header = document.createElement("thead");
   header.innerHTML = `
     <tr>
-      <th>Design</th>
-      <th></th>
+      <th>Title</th>
       <th>Quantity</th>
       <th>Actions</th>
     </tr>
@@ -52,30 +39,23 @@ function renderInventory() {
   table.appendChild(header);
 
   const body = document.createElement("tbody");
-
-  Object.entries(inventory).forEach(([key, item]) => {
+  Object.entries(inventory).forEach(([keyStr, item]) => {
     const row = document.createElement("tr");
     row.innerHTML = `
-      <td>${item.design}</td>
-      <td>${item.design}</td>
+      <td>${item.title}</td>
       <td>${item.quantity}</td>
-      <td>
-        <button class="btn btn-sm btn-danger" onclick="deleteEntry('${key}')">Delete</button>
-      </td>
+      <td><button class="btn btn-sm btn-danger" onclick="deleteEntry('${keyStr}')">Delete</button></td>
     `;
     body.appendChild(row);
   });
-
   table.appendChild(body);
   display.appendChild(table);
 }
 
-function deleteEntry(key) {
-  if (confirm("Are you sure you want to delete this entry?")) {
-    delete inventory[key];
-    localStorage.setItem("transferInventory", JSON.stringify(inventory));
-    renderInventory();
-  }
+function deleteEntry(keyStr) {
+  delete inventory[keyStr];
+  localStorage.setItem("transfersInventory", JSON.stringify(inventory));
+  renderInventory();
 }
 
 function saveSuggestion(key, value) {
@@ -97,7 +77,5 @@ function loadSuggestions(key, datalistId) {
   });
 }
 
-loadSuggestions("styleSuggestions", "styleSuggestions");
-loadSuggestions("colorSuggestions", "colorSuggestions");
-
+loadSuggestions("transfersTitleSuggestions", "titleSuggestions");
 renderInventory();
