@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,40 +10,84 @@
 <body class="p-4">
   <div id="menu-placeholder"></div>
   <h1 class="mb-4">Inventory Overview</h1>
+
   <div class="card mb-4">
     <div class="card-header">Token Setup</div>
     <div class="card-body">
       <label for="setupToken" class="form-label">GitHub Token</label>
-      <input type="password" id="setupToken" class="form-control mb-2" placeholder="Enter GitHub token" />
+      <input type="password" id="setupToken" class="form-control mb-2" />
       <label for="setupPIN" class="form-label">4-digit PIN</label>
-      <input type="password" id="setupPIN" class="form-control mb-2" maxlength="4" placeholder="Set a PIN to unlock" />
+      <input type="password" id="setupPIN" class="form-control mb-2" maxlength="4" />
       <button class="btn btn-outline-primary" onclick="saveToken()">Save Token</button>
     </div>
   </div>
+
   <div class="mb-4">
     <label for="pinInput" class="form-label">Enter PIN to unlock save access</label>
     <input type="password" id="pinInput" class="form-control mb-2" maxlength="4" />
     <button class="btn btn-outline-secondary" onclick="unlockToken()">Unlock</button>
     <button class="btn btn-danger mt-2" onclick="resetToken()">Reset Credentials</button>
   </div>
+
   <div class="mb-3">
     <button id="syncBtn" class="btn btn-primary">Sync from GitHub</button>
     <button id="saveBtn" class="btn btn-success ms-2" disabled>Save to GitHub</button>
   </div>
+
   <div id="status" class="mb-3 fw-bold"></div>
-  <div class="container-fluid">
-    <div class="row" id="totalsRow">
-      <div class="col-md-4 mb-3"><div class="card text-white bg-primary"><div class="card-body"><h5 class="card-title">Total Shirts</h5><p id="totalShirts" class="card-text fs-4">0</p></div></div></div>
-      <div class="col-md-4 mb-3"><div class="card text-white bg-success"><div class="card-body"><h5 class="card-title">Total Tanks</h5><p id="totalTanks" class="card-text fs-4">0</p></div></div></div>
-      <div class="col-md-4 mb-3"><div class="card text-white bg-secondary"><div class="card-body"><h5 class="card-title">Total Hoodies</h5><p id="totalHoodies" class="card-text fs-4">0</p></div></div></div>
-      <div class="col-md-4 mb-3"><div class="card text-white bg-warning"><div class="card-body"><h5 class="card-title">Total Print Tees</h5><p id="totalPrints" class="card-text fs-4">0</p></div></div></div>
-      <div class="col-md-4 mb-3"><div class="card text-white bg-danger"><div class="card-body"><h5 class="card-title">Total Transfers</h5><p id="totalTransfers" class="card-text fs-4">0</p></div></div></div>
-    </div>
-  </div>
+
   <script>
     document.addEventListener("DOMContentLoaded", () => {
-      fetch("menu.html").then(res => res.text()).then(html => document.getElementById("menu-placeholder").innerHTML = html);
+      fetch("menu.html")
+        .then(res => res.text())
+        .then(html => document.getElementById("menu-placeholder").innerHTML = html);
     });
+
+    const owner = "aln-houts";
+    const repo = "Stock";
+    const path = "data/inventory.json";
+    const branch = "main";
+
+    function saveToken() {
+      const token = document.getElementById("setupToken").value;
+      const pin = document.getElementById("setupPIN").value;
+      if (token && pin.length === 4) {
+        localStorage.setItem("ghToken", token);
+        localStorage.setItem("ghPin", pin);
+        alert("Token and PIN saved successfully.");
+        document.getElementById("setupToken").value = "";
+        document.getElementById("setupPIN").value = "";
+      } else {
+        alert("Please enter a token and a 4-digit PIN.");
+      }
+    }
+
+    function unlockToken() {
+      const enteredPin = document.getElementById("pinInput").value;
+      const storedPin = localStorage.getItem("ghPin");
+      const token = localStorage.getItem("ghToken");
+
+      if (enteredPin === storedPin && token) {
+        window.githubToken = token;
+        document.getElementById("saveBtn").disabled = false;
+        updateStatus("Token unlocked. Save button is active.", "success");
+      } else {
+        updateStatus("Incorrect PIN or token not set.", "danger");
+      }
+    }
+
+    function resetToken() {
+      localStorage.removeItem("ghToken");
+      localStorage.removeItem("ghPin");
+      alert("Credentials cleared.");
+      location.reload();
+    }
+
+    function updateStatus(msg, type = "success") {
+      const status = document.getElementById("status");
+      status.textContent = msg;
+      status.className = `mb-3 fw-bold text-${type}`;
+    }
   </script>
 </body>
 </html>
