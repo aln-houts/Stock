@@ -45,7 +45,14 @@
     <h2>Inventory Display</h2>
     <div id="inventoryDisplay" class="table-responsive"></div>
   </div>
-
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    fetch("menu.html")
+      .then(res => res.text())
+      .then(html => document.getElementById("menu-placeholder").innerHTML = html);
+  });
+</script>
+  
   <script src="print.js?v=1.0.0"></script>
 </body>
 </html>
