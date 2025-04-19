@@ -1,30 +1,28 @@
 
-let inventory = JSON.parse(localStorage.getItem("hoodieInventory")) || {};
+let inventory = JSON.parse(localStorage.getItem("hoodiesInventory")) || {};
 
 document.getElementById("addForm").addEventListener("submit", function (e) {
   e.preventDefault();
   const styleInput = document.getElementById("style").value.trim();
-  const colorInput = document.getElementById("color").value.trim();
   const style = styleInput.toLowerCase();
-  const color = colorInput.toLowerCase();
-  const size = document.getElementById("size").value;
+  const colorInput = document.getElementById('color').value.trim(); const color = colorInput.toLowerCase();
+  const size = document.getElementById('size').value;
   const quantity = parseInt(document.getElementById("quantity").value, 10);
 
-  const key = style + "::" + color;
-  if (!inventory[key]) {
-    inventory[key] = {
+  const keyStr = style + "::" + color;
+  if (!inventory[keyStr]) {
+    inventory[keyStr] = {
       style: styleInput,
       color: colorInput,
-      sizes: {
-        XS: 0, S: 0, M: 0, L: 0, XL: 0, XX: 0, "3X": 0, "4X": 0, "5X": 0
-      }
+      sizes: {{ XS: 0, S: 0, M: 0, L: 0, XL: 0, XX: 0, '3X': 0, '4X': 0, '5X': 0 }}
     };
   }
 
-  inventory[key].sizes[size] += quantity;
-  localStorage.setItem("hoodieInventory", JSON.stringify(inventory));
-  saveSuggestion("styleSuggestions", styleInput);
-  saveSuggestion("colorSuggestions", colorInput);
+  inventory[keyStr].sizes[size] += quantity;
+  localStorage.setItem("hoodiesInventory", JSON.stringify(inventory));
+
+  saveSuggestion("hoodiesStyleSuggestions", styleInput);
+  saveSuggestion("hoodiesColors_" + style, colorInput);
   renderInventory();
   e.target.reset();
 });
@@ -41,46 +39,32 @@ function renderInventory() {
     <tr>
       <th>Style</th>
       <th>Color</th>
-      <th>XS</th><th>S</th><th>M</th><th>L</th><th>XL</th>
-      <th>XX</th><th>3X</th><th>4X</th><th>5X</th>
+      <th>XS</th><th>S</th><th>M</th><th>L</th><th>XL</th><th>XX</th><th>3X</th><th>4X</th><th>5X</th>
       <th>Actions</th>
     </tr>
   `;
   table.appendChild(header);
 
   const body = document.createElement("tbody");
-
-  Object.entries(inventory).forEach(([key, item]) => {
+  Object.entries(inventory).forEach(([keyStr, item]) => {
     const row = document.createElement("tr");
     row.innerHTML = `
       <td>${item.style}</td>
       <td>${item.color}</td>
-      <td>${item.sizes.XS}</td>
-      <td>${item.sizes.S}</td>
-      <td>${item.sizes.M}</td>
-      <td>${item.sizes.L}</td>
-      <td>${item.sizes.XL}</td>
-      <td>${item.sizes.XX}</td>
-      <td>${item.sizes["3X"]}</td>
-      <td>${item.sizes["4X"]}</td>
-      <td>${item.sizes["5X"]}</td>
-      <td>
-        <button class="btn btn-sm btn-danger" onclick="deleteEntry('${key}')">Delete</button>
-      </td>
+      <td>${item.sizes.XS}</td><td>${item.sizes.S}</td><td>${item.sizes.M}</td><td>${item.sizes.L}</td>
+    <td>${item.sizes.XL}</td><td>${item.sizes.XX}</td><td>${item.sizes['3X']}</td><td>${item.sizes['4X']}</td><td>${item.sizes['5X']}</td>
+      <td><button class="btn btn-sm btn-danger" onclick="deleteEntry('${keyStr}')">Delete</button></td>
     `;
     body.appendChild(row);
   });
-
   table.appendChild(body);
   display.appendChild(table);
 }
 
-function deleteEntry(key) {
-  if (confirm("Are you sure you want to delete this entry?")) {
-    delete inventory[key];
-    localStorage.setItem("hoodieInventory", JSON.stringify(inventory));
-    renderInventory();
-  }
+function deleteEntry(keyStr) {
+  delete inventory[keyStr];
+  localStorage.setItem("hoodiesInventory", JSON.stringify(inventory));
+  renderInventory();
 }
 
 function saveSuggestion(key, value) {
@@ -102,7 +86,10 @@ function loadSuggestions(key, datalistId) {
   });
 }
 
-loadSuggestions("styleSuggestions", "styleSuggestions");
-loadSuggestions("colorSuggestions", "colorSuggestions");
+loadSuggestions("hoodiesStyleSuggestions", "styleSuggestions");
 
+document.getElementById("style").addEventListener("change", function () {
+  const style = this.value.trim().toLowerCase();
+  loadSuggestions("hoodiesColors_" + style, "colorSuggestions");
+});
 renderInventory();

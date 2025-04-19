@@ -1,12 +1,12 @@
 
-let inventory = JSON.parse(localStorage.getItem("hatsInventory")) || {};
+let inventory = JSON.parse(localStorage.getItem("tanksInventory")) || {};
 
 document.getElementById("addForm").addEventListener("submit", function (e) {
   e.preventDefault();
   const styleInput = document.getElementById("style").value.trim();
   const style = styleInput.toLowerCase();
   const colorInput = document.getElementById('color').value.trim(); const color = colorInput.toLowerCase();
-  
+  const size = document.getElementById('size').value;
   const quantity = parseInt(document.getElementById("quantity").value, 10);
 
   const keyStr = style + "::" + color;
@@ -14,15 +14,15 @@ document.getElementById("addForm").addEventListener("submit", function (e) {
     inventory[keyStr] = {
       style: styleInput,
       color: colorInput,
-      quantity: 0
+      sizes: {{ XS: 0, S: 0, M: 0, L: 0, XL: 0, XX: 0, '3X': 0, '4X': 0, '5X': 0 }}
     };
   }
 
-  inventory[keyStr].quantity += quantity;
-  localStorage.setItem("hatsInventory", JSON.stringify(inventory));
+  inventory[keyStr].sizes[size] += quantity;
+  localStorage.setItem("tanksInventory", JSON.stringify(inventory));
 
-  saveSuggestion("hatsStyleSuggestions", styleInput);
-  saveSuggestion("hatsColors_" + style, colorInput);
+  saveSuggestion("tanksStyleSuggestions", styleInput);
+  saveSuggestion("tanksColors_" + style, colorInput);
   renderInventory();
   e.target.reset();
 });
@@ -39,7 +39,7 @@ function renderInventory() {
     <tr>
       <th>Style</th>
       <th>Color</th>
-      <th>Qty</th>
+      <th>XS</th><th>S</th><th>M</th><th>L</th><th>XL</th><th>XX</th><th>3X</th><th>4X</th><th>5X</th>
       <th>Actions</th>
     </tr>
   `;
@@ -51,7 +51,8 @@ function renderInventory() {
     row.innerHTML = `
       <td>${item.style}</td>
       <td>${item.color}</td>
-      <td>${item.quantity}</td>
+      <td>${item.sizes.XS}</td><td>${item.sizes.S}</td><td>${item.sizes.M}</td><td>${item.sizes.L}</td>
+    <td>${item.sizes.XL}</td><td>${item.sizes.XX}</td><td>${item.sizes['3X']}</td><td>${item.sizes['4X']}</td><td>${item.sizes['5X']}</td>
       <td><button class="btn btn-sm btn-danger" onclick="deleteEntry('${keyStr}')">Delete</button></td>
     `;
     body.appendChild(row);
@@ -62,7 +63,7 @@ function renderInventory() {
 
 function deleteEntry(keyStr) {
   delete inventory[keyStr];
-  localStorage.setItem("hatsInventory", JSON.stringify(inventory));
+  localStorage.setItem("tanksInventory", JSON.stringify(inventory));
   renderInventory();
 }
 
@@ -85,10 +86,10 @@ function loadSuggestions(key, datalistId) {
   });
 }
 
-loadSuggestions("hatsStyleSuggestions", "styleSuggestions");
+loadSuggestions("tanksStyleSuggestions", "styleSuggestions");
 
 document.getElementById("style").addEventListener("change", function () {
   const style = this.value.trim().toLowerCase();
-  loadSuggestions("hatsColors_" + style, "colorSuggestions");
+  loadSuggestions("tanksColors_" + style, "colorSuggestions");
 });
 renderInventory();

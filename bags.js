@@ -1,34 +1,28 @@
 
-let inventory = JSON.parse(localStorage.getItem("bagInventory")) || {};
+let inventory = JSON.parse(localStorage.getItem("bagsInventory")) || {};
 
 document.getElementById("addForm").addEventListener("submit", function (e) {
   e.preventDefault();
-  const styleInput = document.getElementById("style")?.value.trim() || "";
-  const colorInput = document.getElementById("color")?.value.trim() || "";
+  const styleInput = document.getElementById("style").value.trim();
   const style = styleInput.toLowerCase();
-  const color = colorInput.toLowerCase();
-  const designInput = document.getElementById("design")?.value.trim() || "";
+  const colorInput = document.getElementById('color').value.trim(); const color = colorInput.toLowerCase();
+  
   const quantity = parseInt(document.getElementById("quantity").value, 10);
 
-  const key = designInput ? designInput.toLowerCase() : (style + "::" + color);
-
-  if (!inventory[key]) {
-    inventory[key] = designInput ? {
-      design: designInput,
-      quantity: 0
-    } : {
+  const keyStr = style + "::" + color;
+  if (!inventory[keyStr]) {
+    inventory[keyStr] = {
       style: styleInput,
       color: colorInput,
       quantity: 0
     };
   }
 
-  inventory[key].quantity += quantity;
-  localStorage.setItem("bagInventory", JSON.stringify(inventory));
+  inventory[keyStr].quantity += quantity;
+  localStorage.setItem("bagsInventory", JSON.stringify(inventory));
 
-  if (styleInput) saveSuggestion("styleSuggestions", styleInput);
-  if (colorInput) saveSuggestion("colorSuggestions", colorInput);
-
+  saveSuggestion("bagsStyleSuggestions", styleInput);
+  saveSuggestion("bagsColors_" + style, colorInput);
   renderInventory();
   e.target.reset();
 });
@@ -45,37 +39,31 @@ function renderInventory() {
     <tr>
       <th>Style</th>
       <th>Color</th>
-      <th>Quantity</th>
+      <th>Qty</th>
       <th>Actions</th>
     </tr>
   `;
   table.appendChild(header);
 
   const body = document.createElement("tbody");
-
-  Object.entries(inventory).forEach(([key, item]) => {
+  Object.entries(inventory).forEach(([keyStr, item]) => {
     const row = document.createElement("tr");
     row.innerHTML = `
       <td>${item.style}</td>
       <td>${item.color}</td>
       <td>${item.quantity}</td>
-      <td>
-        <button class="btn btn-sm btn-danger" onclick="deleteEntry('${key}')">Delete</button>
-      </td>
+      <td><button class="btn btn-sm btn-danger" onclick="deleteEntry('${keyStr}')">Delete</button></td>
     `;
     body.appendChild(row);
   });
-
   table.appendChild(body);
   display.appendChild(table);
 }
 
-function deleteEntry(key) {
-  if (confirm("Are you sure you want to delete this entry?")) {
-    delete inventory[key];
-    localStorage.setItem("bagInventory", JSON.stringify(inventory));
-    renderInventory();
-  }
+function deleteEntry(keyStr) {
+  delete inventory[keyStr];
+  localStorage.setItem("bagsInventory", JSON.stringify(inventory));
+  renderInventory();
 }
 
 function saveSuggestion(key, value) {
@@ -97,7 +85,10 @@ function loadSuggestions(key, datalistId) {
   });
 }
 
-loadSuggestions("styleSuggestions", "styleSuggestions");
-loadSuggestions("colorSuggestions", "colorSuggestions");
+loadSuggestions("bagsStyleSuggestions", "styleSuggestions");
 
+document.getElementById("style").addEventListener("change", function () {
+  const style = this.value.trim().toLowerCase();
+  loadSuggestions("bagsColors_" + style, "colorSuggestions");
+});
 renderInventory();
