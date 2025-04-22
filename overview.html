@@ -89,7 +89,37 @@
       status.className = `mb-3 fw-bold text-${type}`;
     }
   </script>
+
+  <!-- Firebase auto-load -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAEdQWx8mPqO48ZzvtM_Gimt-Hdw68Kmq4",
+      authDomain: "inventory-app-609ca.firebaseapp.com",
+      projectId: "inventory-app-609ca",
+      storageBucket: "inventory-app-609ca.firebasestorage.app",
+      messagingSenderId: "921704322566",
+      appId: "1:921704322566:web:4dab06516bd4bc3a18d587"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const categories = ["tees", "tanks", "hoodies", "hats", "bags", "printtees", "transfers"];
+    async function loadCategory(category) {
+      const ref = doc(db, "inventory", category);
+      const snap = await getDoc(ref);
+      if (snap.exists()) {
+        localStorage.setItem(category + "Inventory", JSON.stringify(snap.data().data));
+        console.log(`Loaded ${category} from Firebase`);
+      }
+    }
+
+    categories.forEach(loadCategory);
+  </script>
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="shared.js"></script>
 </body>
 </html>
