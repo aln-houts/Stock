@@ -1,12 +1,27 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Create Invoice</title>
-  <link rel="stylesheet" href="style.css">
+
+  <!-- Main CSS -->
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- html2pdf for PDF downloads -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <!-- Your main menu (loads menu.html dynamically) -->
+  <script src="menu.js" defer></script>
+
+  <!-- Invoice functionality -->
   <script src="invoice.js" defer></script>
 </head>
 <body>
+
+  <!-- This div will load your menu.html into the page -->
+  <div id="menu"></div>
+
   <div class="container">
     <h1>Create Invoice</h1>
 
@@ -30,5 +45,6 @@
       <p><button onclick="downloadInvoice()">Download PDF</button></p>
     </div>
   </div>
+
 </body>
 </html>
