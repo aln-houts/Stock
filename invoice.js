@@ -172,4 +172,20 @@ document.addEventListener('DOMContentLoaded', function() {
     invoiceInput.value = 10024; // Starting invoice number if none yet
   }
 });
+function downloadInvoices() {
+  const invoices = localStorage.getItem('savedInvoices');
+  if (!invoices) {
+    alert('No invoices saved.');
+    return;
+  }
+
+  const blob = new Blob([invoices], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'invoices.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
 
