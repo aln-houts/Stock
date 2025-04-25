@@ -1,11 +1,12 @@
 let pricingData = [];
 let lineItemIndex = 0;
 
+// Load pricing.json
 fetch('pricing.json')
   .then(res => res.json())
   .then(data => {
     pricingData = data;
-    addLineItem(); // Add first item on load
+    addLineItem(); // Add first line item on page load
   });
 
 function addLineItem() {
@@ -114,4 +115,18 @@ function generateInvoice() {
   document.getElementById('total-qty').textContent = totalQty;
   document.getElementById('invoice-total').textContent = grandTotal.toFixed(2);
   document.getElementById('invoice-preview').style.display = 'block';
+}
+
+function downloadInvoice() {
+  const element = document.getElementById('invoice-preview');
+
+  const opt = {
+    margin: 0.5,
+    filename: `Invoice-${document.getElementById('invoice-number').value}.pdf`,
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+  };
+
+  html2pdf().set(opt).from(element).save();
 }
