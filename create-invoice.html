@@ -5,20 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Create Invoice</title>
 
+  <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+  <!-- Custom Styles -->
   <link rel="stylesheet" href="styles.css" />
 
+  <!-- Prevent caching -->
   <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-
-  <script src="menu.js" defer></script>
-  <script src="invoice.js" defer></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" defer></script>
 </head>
 <body>
+
+  <!-- Menu Placeholder -->
   <div id="menu-placeholder"></div>
 
+  <!-- Main Invoice Form -->
   <div class="container mt-4">
     <h1>Create Invoice</h1>
 
@@ -34,6 +37,7 @@
 
     <hr />
 
+    <!-- Invoice Preview Area -->
     <div id="invoice-preview" style="display:none; border: 1px solid #ccc; padding: 1rem; background: white;">
       <div style="display: flex; justify-content: space-between; align-items: center;">
         <img src="logo.png" alt="Logo" style="height: 60px;" />
@@ -80,6 +84,26 @@
 
       <button class="btn btn-success" onclick="downloadInvoice()">Download PDF</button>
     </div>
-  </div>
+
+  </div> <!-- End container -->
+
+  <!-- Scripts Section -->
+
+  <!-- Bootstrap Bundle JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Inline Script to Load Menu -->
+  <script>
+    fetch("menu.html")
+      .then(res => res.text())
+      .then(html => document.getElementById("menu-placeholder").innerHTML = html);
+  </script>
+
+  <!-- Invoice Logic -->
+  <script src="invoice.js"></script>
+
+  <!-- html2pdf for PDF downloads -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
 </body>
 </html>
