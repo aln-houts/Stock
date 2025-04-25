@@ -1,17 +1,12 @@
-/* General Body Style */
 body {
   font-family: sans-serif;
   background-color: #f8f9fa;
   margin: 2em;
 }
-
-/* Global container style */
 .container {
   max-width: 700px;
   margin: 0 auto;
 }
-
-/* Labels, Inputs, Selects, and Buttons Styling */
 label, select, input, button {
   display: block;
   width: 100%;
@@ -19,8 +14,6 @@ label, select, input, button {
   padding: 0.5em;
   font-size: 1em;
 }
-
-/* Buttons */
 button {
   background: cornflowerblue;
   border: none;
@@ -29,12 +22,9 @@ button {
   cursor: pointer;
   transition: background 0.3s;
 }
-
 button:hover {
   background: royalblue;
 }
-
-/* Horizontal Rule */
 hr {
   margin: 2em 0;
 }
