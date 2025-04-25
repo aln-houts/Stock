@@ -119,7 +119,35 @@ localStorage.setItem('invoiceNumber', nextInvoice);
   document.getElementById('total-qty').textContent = totalQty;
   document.getElementById('invoice-total').textContent = grandTotal.toFixed(2);
   document.getElementById('invoice-preview').style.display = 'block';
-}
+}// Save the generated invoice data to localStorage
+let savedInvoices = JSON.parse(localStorage.getItem('savedInvoices')) || [];
+
+let newInvoice = {
+  invoiceNumber: document.getElementById('invoice-number').value,
+  date: new Date().toLocaleDateString(),
+  totalQuantity: totalQty,
+  totalAmount: grandTotal.toFixed(2),
+  items: []
+};
+
+// Loop again to collect detailed items
+document.querySelectorAll('.line-item').forEach(item => {
+  const garment = item.querySelector('.garment').value;
+  const design = item.querySelector('.design').value;
+  const transfer = item.querySelector('.transfer').value;
+  const qty = parseInt(item.querySelector('.quantity').value, 10);
+
+  newInvoice.items.push({
+    garment,
+    design,
+    transfer,
+    quantity: qty
+  });
+});
+
+savedInvoices.push(newInvoice);
+localStorage.setItem('savedInvoices', JSON.stringify(savedInvoices));
+                              
 
 function downloadInvoice() {
   const element = document.getElementById('invoice-preview');
