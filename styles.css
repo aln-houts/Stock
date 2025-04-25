@@ -10,3 +10,36 @@ h2 {
 .table th, .table td {
   text-align: center;
 }
+body {
+  font-family: sans-serif;
+  margin: 2em;
+}
+
+.container {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+label, select, input, button {
+  display: block;
+  width: 100%;
+  margin-bottom: 1em;
+  padding: 0.5em;
+  font-size: 1em;
+}
+
+button {
+  background: cornflowerblue;
+  border: none;
+  color: white;
+  padding: 0.75em;
+  cursor: pointer;
+}
+
+button:hover {
+  background: royalblue;
+}
+
+hr {
+  margin: 2em 0;
+}
