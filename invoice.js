@@ -111,7 +111,11 @@ function generateInvoice() {
       </p>
     `;
   });
-
+// Auto-increment invoice number after preview
+let currentInvoice = parseInt(document.getElementById('invoice-number').value, 10);
+let nextInvoice = currentInvoice + 1;
+localStorage.setItem('invoiceNumber', nextInvoice);
+  
   document.getElementById('total-qty').textContent = totalQty;
   document.getElementById('invoice-total').textContent = grandTotal.toFixed(2);
   document.getElementById('invoice-preview').style.display = 'block';
