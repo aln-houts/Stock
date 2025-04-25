@@ -130,3 +130,14 @@ function downloadInvoice() {
 
   html2pdf().set(opt).from(element).save();
 }
+document.addEventListener('DOMContentLoaded', function() {
+  let storedInvoiceNumber = localStorage.getItem('invoiceNumber');
+  const invoiceInput = document.getElementById('invoice-number');
+
+  if (storedInvoiceNumber) {
+    invoiceInput.value = storedInvoiceNumber;
+  } else {
+    invoiceInput.value = 10024; // Starting invoice number if none yet
+  }
+});
+
