@@ -6,7 +6,7 @@ fetch('pricing.json')
   .then(res => res.json())
   .then(data => {
     pricingData = data;
-    addLineItem(); // Add first line item on page load
+    addLineItem();
   });
 
 function addLineItem() {
@@ -17,20 +17,27 @@ function addLineItem() {
   div.dataset.index = lineItemIndex;
 
   div.innerHTML = `
-    <label>Garment:</label>
-    <select onchange="populateDesigns(this)" class="garment">
-      <option value="">-- Select Garment --</option>
-      ${pricingData.map(p => `<option value="${p.garment}">${p.garment}</option>`).join('')}
-    </select>
-
-    <label>Design:</label>
-    <select class="design"><option value="">--</option></select>
-
-    <label>Transfer:</label>
-    <select class="transfer"><option value="">--</option></select>
-
-    <label>Quantity:</label>
-    <input type="number" class="quantity" min="1" value="1">
+    <div class="row mb-3">
+      <div class="col-md-4">
+        <label>Garment:</label>
+        <select onchange="populateDesigns(this)" class="form-select garment">
+          <option value="">-- Select Garment --</option>
+          ${pricingData.map(p => `<option value="${p.garment}">${p.garment}</option>`).join('')}
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label>Design:</label>
+        <select class="form-select design"><option value="">--</option></select>
+      </div>
+      <div class="col-md-4">
+        <label>Transfer:</label>
+        <select class="form-select transfer"><option value="">--</option></select>
+      </div>
+      <div class="col-md-4 mt-2">
+        <label>Quantity:</label>
+        <input type="number" class="form-control quantity" min="1" value="1">
+      </div>
+    </div>
     <hr>
   `;
 
@@ -46,146 +53,49 @@ function populateDesigns(selectEl) {
 
   const garmentData = pricingData.find(p => p.garment === garment);
 
-  // Populate Design Options
   designEl.innerHTML = `<option value="">--</option>`;
-  if (garmentData.design) {
+  if (garmentData?.design) {
     for (let designType in garmentData.design) {
       designEl.innerHTML += `<option value="${designType}">${designType}</option>`;
     }
   }
 
-  // Populate Transfer Options
   transferEl.innerHTML = `<option value="">--</option>`;
-  if (garmentData.transfer) {
-    for (let transfer in garmentData.transfer) {
-      transferEl.innerHTML += `<option value="${transfer}">${transfer}</option>`;
+  if (garmentData?.transfer) {
+    for (let transferType in garmentData.transfer) {
+      transferEl.innerHTML += `<option value="${transferType}">${transferType}</option>`;
     }
   }
 }
 
 function getPriceFromTier(tiers, totalQty) {
+  if (!tiers) return 0;
   for (let range in tiers) {
     const [min, max] = range.split('-');
-    if (range === "49+" && totalQty >= 49) return tiers[range];
+    if (range.includes('+') && totalQty >= parseInt(range)) {
+      return tiers[range];
+    }
     if (totalQty >= parseInt(min) && totalQty <= parseInt(max)) {
       return tiers[range];
     }
   }
-  return null;
+  return 0;
 }
 
 function generateInvoice() {
   const lineItems = document.querySelectorAll('.line-item');
   let totalQty = 0;
-  const invoiceRows = [];
+  let grandTotal = 0;
 
-  // First, calculate total quantity
+  const summaryDiv = document.getElementById('invoice-summary');
+  summaryDiv.innerHTML = "";
+
+  document.getElementById('preview-invoice-number').textContent = document.getElementById('invoice-number').value;
+
   lineItems.forEach(item => {
     const qty = parseInt(item.querySelector('.quantity').value, 10);
     totalQty += qty;
   });
 
-  let grandTotal = 0;
-  const summaryDiv = document.getElementById('invoice-summary');
-  summaryDiv.innerHTML = "";
-
   lineItems.forEach(item => {
-    const garment = item.querySelector('.garment').value;
-    const design = item.querySelector('.design').value;
-    const transfer = item.querySelector('.transfer').value;
-    const qty = parseInt(item.querySelector('.quantity').value, 10);
-
-    const garmentData = pricingData.find(p => p.garment === garment);
-    const base = garmentData?.basePrice || 0;
-    const designPrice = design ? getPriceFromTier(garmentData?.design?.[design], totalQty) || 0 : 0;
-    const transferPrice = transfer ? garmentData?.transfer?.[transfer] || 0 : 0;
-
-    const unitPrice = base + designPrice + transferPrice;
-    const lineTotal = unitPrice * qty;
-    grandTotal += lineTotal;
-
-    summaryDiv.innerHTML += `
-      <p>
-        ${qty} × ${garment} (${design || 'No Design'} + ${transfer || 'No Transfer'}) = $${lineTotal.toFixed(2)}<br>
-        <small>($${base.toFixed(2)} + $${designPrice.toFixed(2)} + $${transferPrice.toFixed(2)} × ${qty})</small>
-      </p>
-    `;
-  });
-// Auto-increment invoice number after preview
-let currentInvoice = parseInt(document.getElementById('invoice-number').value, 10);
-let nextInvoice = currentInvoice + 1;
-localStorage.setItem('invoiceNumber', nextInvoice);
-  
-  document.getElementById('total-qty').textContent = totalQty;
-  document.getElementById('invoice-total').textContent = grandTotal.toFixed(2);
-  document.getElementById('invoice-preview').style.display = 'block';
-}// Save the generated invoice data to localStorage
-let savedInvoices = JSON.parse(localStorage.getItem('savedInvoices')) || [];
-
-let newInvoice = {
-  invoiceNumber: document.getElementById('invoice-number').value,
-  date: new Date().toLocaleDateString(),
-  totalQuantity: totalQty,
-  totalAmount: grandTotal.toFixed(2),
-  items: []
-};
-
-// Loop again to collect detailed items
-document.querySelectorAll('.line-item').forEach(item => {
-  const garment = item.querySelector('.garment').value;
-  const design = item.querySelector('.design').value;
-  const transfer = item.querySelector('.transfer').value;
-  const qty = parseInt(item.querySelector('.quantity').value, 10);
-
-  newInvoice.items.push({
-    garment,
-    design,
-    transfer,
-    quantity: qty
-  });
-});
-
-savedInvoices.push(newInvoice);
-localStorage.setItem('savedInvoices', JSON.stringify(savedInvoices));
-                              
-
-function downloadInvoice() {
-  const element = document.getElementById('invoice-preview');
-
-  const opt = {
-    margin: 0.5,
-    filename: `Invoice-${document.getElementById('invoice-number').value}.pdf`,
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2 },
-    jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-  };
-
-  html2pdf().set(opt).from(element).save();
-}
-document.addEventListener('DOMContentLoaded', function() {
-  let storedInvoiceNumber = localStorage.getItem('invoiceNumber');
-  const invoiceInput = document.getElementById('invoice-number');
-
-  if (storedInvoiceNumber) {
-    invoiceInput.value = storedInvoiceNumber;
-  } else {
-    invoiceInput.value = 10024; // Starting invoice number if none yet
-  }
-});
-function downloadInvoices() {
-  const invoices = localStorage.getItem('savedInvoices');
-  if (!invoices) {
-    alert('No invoices saved.');
-    return;
-  }
-
-  const blob = new Blob([invoices], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'invoices.json';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-}
-
+    const garment = item.querySelect
