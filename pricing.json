@@ -1,29 +1,43 @@
-[
-  {
-    "garment": "T-shirt G6400",
-    "basePrice": 5.3,
-    "design": {
-      "Single Press": {
-        "1-11": 6,
-        "12-24": 5,
-        "25-48": 4,
-        "49+": 3.5
-      }
+{
+  "garments": {
+    "Fruit of the Loom": 4.16,
+    "T-shirt G6400": 5.3,
+    "Bucket Hat": 3.3,
+    "Long Sleeve G240": 8.5,
+    "Hoodie G185": 14.4,
+    "Pocket Tee G230": 7.2,
+    "Pocket Tee G230 XX": 12.44,
+    "Pocket Tee G230 XXX": 15.1,
+    "Raglan G570": 8.58,
+    "T-shirt G500": 4.23,
+    "Tank Top G520": 6.65
+  },
+  "designs": {
+    "Single Press": {
+      "1-11": 6,
+      "12-24": 5,
+      "25-48": 4,
+      "49+": 3.5
     },
-    "transfer": {
-      "12x5.4": 0.6875
+    "Double Side": {
+      "1-11": 8,
+      "12-24": 6.5,
+      "25-48": 5,
+      "49+": 4
+    },
+    "Single Side": {
+      "1-11": 5,
+      "12-24": 4.5,
+      "25-48": 4,
+      "49+": 3.5
     }
   },
-  {
-    "garment": "T-shirt G500",
-    "basePrice": 4.23,
-    "design": {
-      "Single Press": {
-        "1-11": 6,
-        "12-24": 5,
-        "25-48": 4,
-        "49+": 3.5
-      }
-    }
+  "transfers": {
+    "hat/pocket": 0.1375,
+    "12x5.4": 0.6875,
+    "11x12": 1.375,
+    "11x18": 2.0625,
+    "12x22": 2.75,
+    "11x12 & pocket": 1.5125
   }
-]
+}
