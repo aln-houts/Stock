@@ -1,7 +1,7 @@
 // Pricing data embedded directly
 const pricingData = {
   garments: {
-    "Fruit of the Loom": 4.25,
+    "Fruit of the Loom": 4.5,
     "T-shirt G6400": 5.5,
     "Bucket Hat": 3.5,
     "Long Sleeve G240": 8.5,
@@ -10,7 +10,7 @@ const pricingData = {
     "Pocket Tee G230 XX": 12.50,
     "Pocket Tee G230 XXX": 15.25,
     "Raglan G570": 8.75,
-    "T-shirt G500": 4.25,
+    "T-shirt G500": 4.5,
     "Tank Top G520": 6.75
   },
   designs: {
@@ -28,11 +28,11 @@ const pricingData = {
     },
   },
   transfers: {
-    "hat/pocket": 0.15,
-    "12x5.4": 0.75,
-    "11x12": 1.5,
-    "11x18": 2.25,
-    "12x22": 2.75,
+    "hat/pocket": 0.25,
+    "12x5.4": 1,
+    "11x12": 2,
+    "11x18": 2.5,
+    "12x22": 3,
     "11x12 & pocket": 1.75
   }
 };
