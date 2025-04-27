@@ -1,7 +1,7 @@
 let pricingData = [];
 let lineItemIndex = 0;
 
-fetch('pricing.json')
+fetch('Stock/pricing.json')
   .then(res => res.json())
   .then(data => {
     pricingData = data;
