@@ -1,45 +1,39 @@
 // Pricing data embedded directly
 const pricingData = {
   garments: {
-    "Fruit of the Loom": 4.16,
-    "T-shirt G6400": 5.3,
-    "Bucket Hat": 3.3,
+    "Fruit of the Loom": 4.25,
+    "T-shirt G6400": 5.5,
+    "Bucket Hat": 3.5,
     "Long Sleeve G240": 8.5,
-    "Hoodie G185": 14.4,
-    "Pocket Tee G230": 7.2,
-    "Pocket Tee G230 XX": 12.44,
-    "Pocket Tee G230 XXX": 15.1,
-    "Raglan G570": 8.58,
-    "T-shirt G500": 4.23,
-    "Tank Top G520": 6.65
+    "Hoodie G185": 14.5,
+    "Pocket Tee G230": 7.25,
+    "Pocket Tee G230 XX": 12.50,
+    "Pocket Tee G230 XXX": 15.25,
+    "Raglan G570": 8.75,
+    "T-shirt G500": 4.25,
+    "Tank Top G520": 6.75
   },
   designs: {
     "Single Press": {
-      "1-11": 6,
-      "12-24": 5,
-      "25-48": 4,
+      "1-11": 6.5,
+      "12-24": 5.5,
+      "25-48": 4.5,
       "49+": 3.5
     },
     "Double Side": {
-      "1-11": 8,
+      "1-11": 7.75,
       "12-24": 6.5,
-      "25-48": 5,
-      "49+": 4
+      "25-48": 5.25,
+      "49+": 4.5
     },
-    "Single Side": {
-      "1-11": 5,
-      "12-24": 4.5,
-      "25-48": 4,
-      "49+": 3.5
-    }
   },
   transfers: {
-    "hat/pocket": 0.1375,
-    "12x5.4": 0.6875,
-    "11x12": 1.375,
-    "11x18": 2.0625,
+    "hat/pocket": 0.15,
+    "12x5.4": 0.75,
+    "11x12": 1.5,
+    "11x18": 2.25,
     "12x22": 2.75,
-    "11x12 & pocket": 1.5125
+    "11x12 & pocket": 1.75
   }
 };
 
