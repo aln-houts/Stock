@@ -44,6 +44,7 @@ function addLineItem() {
   lineItemIndex++;
 }
 
+
 function populateDesigns(selectEl) {
   const container = selectEl.closest('.line-item');
   const designEl = container.querySelector('.design');
