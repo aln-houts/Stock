@@ -1,14 +1,24 @@
-let pricingData = [];
+let pricingData = null;
 let lineItemIndex = 0;
 
+// Load pricing.json first
 fetch('Stock/pricing.json')
   .then(res => res.json())
   .then(data => {
     pricingData = data;
-    addLineItem();
+    console.log('Pricing loaded:', pricingData); // Optional: for quick testing
+    addLineItem(); // Now it's safe to call Add Line after pricing is ready
+  })
+  .catch(error => {
+    console.error('Error loading pricing.json:', error);
   });
 
 function addLineItem() {
+  if (!pricingData || !pricingData.garments) {
+    alert('Pricing data not loaded yet. Please wait a moment and try again.');
+    return;
+  }
+
   const container = document.getElementById('line-items');
 
   const div = document.createElement('div');
@@ -43,7 +53,6 @@ function addLineItem() {
   container.appendChild(div);
   lineItemIndex++;
 }
-
 
 function populateDesigns(selectEl) {
   const container = selectEl.closest('.line-item');
