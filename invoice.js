@@ -1,24 +1,56 @@
-let pricingData = null;
+// Pricing data embedded directly
+const pricingData = {
+  garments: {
+    "Fruit of the Loom": 4.16,
+    "T-shirt G6400": 5.3,
+    "Bucket Hat": 3.3,
+    "Long Sleeve G240": 8.5,
+    "Hoodie G185": 14.4,
+    "Pocket Tee G230": 7.2,
+    "Pocket Tee G230 XX": 12.44,
+    "Pocket Tee G230 XXX": 15.1,
+    "Raglan G570": 8.58,
+    "T-shirt G500": 4.23,
+    "Tank Top G520": 6.65
+  },
+  designs: {
+    "Single Press": {
+      "1-11": 6,
+      "12-24": 5,
+      "25-48": 4,
+      "49+": 3.5
+    },
+    "Double Side": {
+      "1-11": 8,
+      "12-24": 6.5,
+      "25-48": 5,
+      "49+": 4
+    },
+    "Single Side": {
+      "1-11": 5,
+      "12-24": 4.5,
+      "25-48": 4,
+      "49+": 3.5
+    }
+  },
+  transfers: {
+    "hat/pocket": 0.1375,
+    "12x5.4": 0.6875,
+    "11x12": 1.375,
+    "11x18": 2.0625,
+    "12x22": 2.75,
+    "11x12 & pocket": 1.5125
+  }
+};
+
 let lineItemIndex = 0;
 
-// Load pricing.json first
-fetch('Stock/pricing.json')
-  .then(res => res.json())
-  .then(data => {
-    pricingData = data;
-    console.log('Pricing loaded:', pricingData); // Optional: for quick testing
-    addLineItem(); // Now it's safe to call Add Line after pricing is ready
-  })
-  .catch(error => {
-    console.error('Error loading pricing.json:', error);
-  });
+// Immediately add the first line item
+document.addEventListener('DOMContentLoaded', () => {
+  addLineItem();
+});
 
 function addLineItem() {
-  if (!pricingData || !pricingData.garments) {
-    alert('Pricing data not loaded yet. Please wait a moment and try again.');
-    return;
-  }
-
   const container = document.getElementById('line-items');
 
   const div = document.createElement('div');
