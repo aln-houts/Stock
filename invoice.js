@@ -33,7 +33,7 @@ const pricingData = {
     "11x12": 2,
     "11x18": 2.5,
     "12x22": 3,
-    "11x12 & pocket": 1.75
+    "11x12 & pocket": 2.25
   }
 };
 
