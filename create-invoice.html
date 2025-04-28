@@ -3,21 +3,21 @@
 <head>
   <title>Create Invoice</title>
 
-  <!-- shared head (meta, CSS, cache-control) -->
+  <!-- Shared head (meta tags, CSS, cache-control) -->
   <div id="head-placeholder"></div>
   <script>
     fetch("head.html")
-      .then(r => r.text())
+      .then(res => res.text())
       .then(html => document.getElementById("head-placeholder").innerHTML = html);
   </script>
 </head>
 <body>
-  <!-- shared navbar -->
+  <!-- Shared navbar -->
   <header>
     <div id="menu-placeholder"></div>
     <script>
       fetch("menu.html")
-        .then(r => r.text())
+        .then(res => res.text())
         .then(html => document.getElementById("menu-placeholder").innerHTML = html);
     </script>
   </header>
@@ -45,7 +45,7 @@
       </div>
       <div class="col-md-3">
         <label for="invoice-status-input" class="form-label">Payment Status</label>
-        <select id="invoice-status-input" class="form-select">
+        <select id="invoice-status-input" class="form-select" required>
           <option>Due in full</option>
           <option>Partial payment</option>
           <option>Paid</option>
@@ -57,21 +57,21 @@
       </div>
     </form>
 
-    <!-- Line‐items will be injected here -->
+    <!-- Dynamic line items -->
     <div id="line-items" class="mb-3"></div>
     <button id="add-line-item-btn" class="btn btn-secondary mb-2">+ Add Item</button>
     <button id="preview-invoice-btn" class="btn btn-primary mb-4">Preview Invoice</button>
 
     <hr />
 
-    <!-- Preview area -->
+    <!-- Invoice preview -->
     <div id="invoice-preview" class="p-4 bg-white border" style="display:none;">
       <div class="d-flex justify-content-between align-items-center mb-3">
         <img src="Umilitee.png" alt="Logo" style="height:60px;" />
         <div>
-          <strong>UMILI TEE LLC</strong><br/>
-          2754 Villa Bella Ct<br/>
-          League City, TX 77573<br/>
+          <strong>UMILI TEE LLC</strong><br>
+          2754 Villa Bella Ct<br>
+          League City, TX 77573<br>
           (832)385-7092
         </div>
       </div>
@@ -119,9 +119,9 @@
     </div>
   </main>
 
-  <!-- shared scripts -->
+  <!-- Shared scripts -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-  <script type="module" src="invoice.js"></script>
+  <script src="invoice.js"></script>
 </body>
 </html>
