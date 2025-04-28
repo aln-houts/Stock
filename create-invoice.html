@@ -7,7 +7,7 @@
   <div id="head-placeholder"></div>
   <script>
     fetch("head.html")
-      .then(res => res.text())
+      .then(r => r.text())
       .then(html => document.getElementById("head-placeholder").innerHTML = html);
   </script>
 </head>
@@ -17,7 +17,7 @@
     <div id="menu-placeholder"></div>
     <script>
       fetch("menu.html")
-        .then(res => res.text())
+        .then(r => r.text())
         .then(html => document.getElementById("menu-placeholder").innerHTML = html);
     </script>
   </header>
@@ -25,24 +25,25 @@
   <main class="container mt-4">
     <h1>Create Invoice</h1>
 
+    <!-- Invoice header fields -->
     <form id="invoice-form" class="row g-3 mb-4">
-      <div class="col-md-3" data-field="invoice-number">
+      <div class="col-md-3">
         <label for="invoice-number" class="form-label">Invoice #</label>
         <input type="number" id="invoice-number" class="form-control" value="10024" required />
       </div>
-      <div class="col-md-3" data-field="invoice-date">
+      <div class="col-md-3">
         <label for="invoice-date-input" class="form-label">Date</label>
         <input type="date" id="invoice-date-input" class="form-control" required />
       </div>
-      <div class="col-md-3" data-field="customer">
+      <div class="col-md-3">
         <label for="invoice-customer-input" class="form-label">Customer</label>
         <input type="text" id="invoice-customer-input" class="form-control" placeholder="Customer name" required />
       </div>
-      <div class="col-md-3" data-field="project">
+      <div class="col-md-3">
         <label for="invoice-project-input" class="form-label">Project</label>
         <input type="text" id="invoice-project-input" class="form-control" placeholder="Project name" required />
       </div>
-      <div class="col-md-3" data-field="status">
+      <div class="col-md-3">
         <label for="invoice-status-input" class="form-label">Payment Status</label>
         <select id="invoice-status-input" class="form-select">
           <option>Due in full</option>
@@ -50,18 +51,20 @@
           <option>Paid</option>
         </select>
       </div>
-      <div class="col-md-3" data-field="due-date">
+      <div class="col-md-3">
         <label for="invoice-due-input" class="form-label">Due Date</label>
         <input type="date" id="invoice-due-input" class="form-control" required />
       </div>
     </form>
 
+    <!-- Line‐items will be injected here -->
     <div id="line-items" class="mb-3"></div>
     <button id="add-line-item-btn" class="btn btn-secondary mb-2">+ Add Item</button>
     <button id="preview-invoice-btn" class="btn btn-primary mb-4">Preview Invoice</button>
 
     <hr />
 
+    <!-- Preview area -->
     <div id="invoice-preview" class="p-4 bg-white border" style="display:none;">
       <div class="d-flex justify-content-between align-items-center mb-3">
         <img src="Umilitee.png" alt="Logo" style="height:60px;" />
