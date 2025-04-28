@@ -8,43 +8,48 @@
   <script>
     fetch("head.html")
       .then(res => res.text())
-      .then(html => document.getElementById("head-placeholder").innerHTML = html);
+      .then(html => {
+        document.getElementById("head-placeholder").innerHTML = html;
+      });
   </script>
 </head>
 
 <body>
-<header>
-  <div id="menu-placeholder"></div>
-  <script>
-    fetch("menu.html")
-      .then(res => res.text())
-      .then(html => document.getElementById("menu-placeholder").innerHTML = html);
-  </script>
-</header>
-
-    <main class="container mt-4">
-        <section>
-            <h2 class="mb-4">Add Bags</h2>
-            <include src="form.html"></include>
-        </section>
-
-        <hr class="my-5" />
-        <section id="display-section">
-            <h2>Inventory Display</h2>
-            <div id="inventoryDisplay" class="table-responsive"></div>
-        </section>
-    </main>
-
+  <header>
+    <div id="menu-placeholder"></div>
     <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            fetch("menu.html").then((res) => res.text()).then((html) => (document.getElementById("menu-placeholder").innerHTML = html));
+      fetch("menu.html")
+        .then(res => res.text())
+        .then(html => {
+          document.getElementById("menu-placeholder").innerHTML = html;
         });
     </script>
-<!-- bags.html: Replace the scripts include with:
-     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-     <script src="shared.js"></script>
-     <script src="bags.js"></script> -->
-  <!-- Shared scripts -->
+  </header>
+
+  <main class="container mt-4">
+    <section>
+      <h2 class="mb-4">Add Bags</h2>
+
+      <!-- form placeholder + injection -->
+      <div id="form-placeholder"></div>
+      <script>
+        fetch("form.html")
+          .then(res => res.text())
+          .then(html => {
+            document.getElementById("form-placeholder").innerHTML = html;
+          });
+      </script>
+    </section>
+
+    <hr class="my-5" />
+
+    <section id="display-section">
+      <h2>Inventory Display</h2>
+      <div id="inventoryDisplay" class="table-responsive"></div>
+    </section>
+  </main>
+
+  <!-- Shared scripts + bags logic -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="shared.js"></script>
   <script src="bags.js"></script>
