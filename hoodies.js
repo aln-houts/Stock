@@ -1,5 +1,4 @@
 import { saveSuggestion, loadSuggestions, renderTable, sizes } from './shared.js';
-import { saveSuggestion, loadSuggestions, renderTable, sizes } from './shared.js';
 const validSizes = sizes;
 let inventory = JSON.parse(localStorage.getItem("hoodiesInventory")) || {};
 
