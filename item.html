@@ -1,36 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title id="page-title">Inventory</title>
 
   <!-- shared head -->
   <div id="head-placeholder"></div>
   <script>
     fetch("head.html")
-      .then(r => r.text())
+      .then(res => res.text())
       .then(html => document.getElementById("head-placeholder").innerHTML = html);
   </script>
 </head>
-<body data-type="">
-  <!-- shared nav -->
+<body>
+  <!-- shared navbar -->
   <header>
     <div id="menu-placeholder"></div>
     <script>
       fetch("menu.html")
-        .then(r => r.text())
+        .then(res => res.text())
         .then(html => document.getElementById("menu-placeholder").innerHTML = html);
     </script>
   </header>
 
   <main class="container mt-4">
-    <h2 id="form-title"></h2>
+    <h2 id="form-title">Add Item</h2>
+
+    <!-- where form.html will get injected -->
     <div id="form-placeholder"></div>
+
     <hr class="my-5" />
+
     <h2>Inventory Display</h2>
     <div id="inventoryDisplay" class="table-responsive"></div>
   </main>
 
-  <!-- shared scripts + item logic -->
+  <!-- shared scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="shared.js"></script>
+
+  <!-- your generic item logic -->
   <script type="module" src="item.js"></script>
 </body>
 </html>
