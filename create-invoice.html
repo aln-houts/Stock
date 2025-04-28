@@ -3,21 +3,21 @@
 <head>
   <title>Create Invoice</title>
 
-  <!-- Shared head (meta tags, CSS, cache-control) -->
+  <!-- shared head -->
   <div id="head-placeholder"></div>
   <script>
     fetch("head.html")
-      .then(res => res.text())
+      .then(r => r.text())
       .then(html => document.getElementById("head-placeholder").innerHTML = html);
   </script>
 </head>
 <body>
-  <!-- Shared navbar -->
+  <!-- shared navbar -->
   <header>
     <div id="menu-placeholder"></div>
     <script>
       fetch("menu.html")
-        .then(res => res.text())
+        .then(r => r.text())
         .then(html => document.getElementById("menu-placeholder").innerHTML = html);
     </script>
   </header>
@@ -25,23 +25,24 @@
   <main class="container mt-4">
     <h1>Create Invoice</h1>
 
-    <!-- Invoice header fields -->
+    <!-- Invoice header form -->
     <form id="invoice-form" class="row g-3 mb-4">
+      <!-- Invoice #, Date, Customer, Project, Status, Due Date -->
       <div class="col-md-3">
         <label for="invoice-number" class="form-label">Invoice #</label>
-        <input type="number" id="invoice-number" class="form-control" value="10024" required />
+        <input type="number" id="invoice-number" class="form-control" value="10024" required>
       </div>
       <div class="col-md-3">
         <label for="invoice-date-input" class="form-label">Date</label>
-        <input type="date" id="invoice-date-input" class="form-control" required />
+        <input type="date" id="invoice-date-input" class="form-control" required>
       </div>
       <div class="col-md-3">
         <label for="invoice-customer-input" class="form-label">Customer</label>
-        <input type="text" id="invoice-customer-input" class="form-control" placeholder="Customer name" required />
+        <input type="text" id="invoice-customer-input" class="form-control" placeholder="Customer name" required>
       </div>
       <div class="col-md-3">
         <label for="invoice-project-input" class="form-label">Project</label>
-        <input type="text" id="invoice-project-input" class="form-control" placeholder="Project name" required />
+        <input type="text" id="invoice-project-input" class="form-control" placeholder="Project name" required>
       </div>
       <div class="col-md-3">
         <label for="invoice-status-input" class="form-label">Payment Status</label>
@@ -53,21 +54,41 @@
       </div>
       <div class="col-md-3">
         <label for="invoice-due-input" class="form-label">Due Date</label>
-        <input type="date" id="invoice-due-input" class="form-control" required />
+        <input type="date" id="invoice-due-input" class="form-control" required>
       </div>
     </form>
 
-    <!-- Dynamic line items -->
+    <!-- Inline pricing JSON -->
+    <script id="pricing-data" type="application/json">
+{
+  "garments": [
+    { "name": "T-shirt G6400", "basePrice": 5.3 },
+    { "name": "Pocket Tee G230", "basePrice": 7.2 }
+    /* …add more garments here… */
+  ],
+  "designTiers": {
+    "Single Press": { "1-11": 6, "12-24": 5, "25-48": 4, "49+": 3.5 },
+    "Double Side":   { "1-11": 7, "12-24": 5.5, "25-48": 4.5, "49+": 3.75 }
+  },
+  "transferCosts": {
+    "12x5.4": 0.6875,
+    "12x22": 2.75
+    /* …add more transfer sizes… */
+  }
+}
+    </script>
+
+    <!-- Line items + buttons -->
     <div id="line-items" class="mb-3"></div>
     <button id="add-line-item-btn" class="btn btn-secondary mb-2">+ Add Item</button>
     <button id="preview-invoice-btn" class="btn btn-primary mb-4">Preview Invoice</button>
 
-    <hr />
+    <hr>
 
     <!-- Invoice preview -->
     <div id="invoice-preview" class="p-4 bg-white border" style="display:none;">
       <div class="d-flex justify-content-between align-items-center mb-3">
-        <img src="Umilitee.png" alt="Logo" style="height:60px;" />
+        <img src="Umilitee.png" alt="Logo" style="height:60px">
         <div>
           <strong>UMILI TEE LLC</strong><br>
           2754 Villa Bella Ct<br>
@@ -76,9 +97,7 @@
         </div>
       </div>
 
-      <h2 class="mb-3">
-        Invoice <span id="invoice-status" class="fw-bold"></span>
-      </h2>
+      <h2 class="mb-3">Invoice <span id="invoice-status" class="fw-bold"></span></h2>
 
       <table class="table mb-4">
         <tbody>
@@ -99,10 +118,7 @@
       <table class="table">
         <thead>
           <tr>
-            <th>Description</th>
-            <th>Qty</th>
-            <th>Unit Price</th>
-            <th>Total</th>
+            <th>Description</th><th>Qty</th><th>Unit Price</th><th>Total</th>
           </tr>
         </thead>
         <tbody id="invoice-summary"></tbody>
