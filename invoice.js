@@ -7,54 +7,60 @@ document.addEventListener('DOMContentLoaded', () => {
   const previewBtn         = document.getElementById('preview-invoice-btn');
   const downloadBtn        = document.getElementById('download-invoice-btn');
 
-  // 1) Helper: recalc *all* unit prices based on totalQty
+  // === 1) Build global dropdown lists ===
+  const allDesigns = Array.from(
+    new Set(pricingData.flatMap(item => Object.keys(item.design || {})))
+  );
+  const allTransfers = Array.from(
+    new Set(pricingData.flatMap(item => Object.keys(item.transfer || {})))
+  );
+
+  // === 2) Recalc every row's unit price when anything changes ===
   function updateAllPrices() {
-    // sum total quantity across all lines
+    // 2a) Sum up total quantity across all rows
     let totalQty = 0;
-    document.querySelectorAll('.qty-input').forEach(qEl => {
-      const v = parseInt(qEl.value, 10);
+    document.querySelectorAll('.qty-input').forEach(el => {
+      const v = parseInt(el.value, 10);
       if (!isNaN(v)) totalQty += v;
     });
 
-    // update each row’s price
+    // 2b) For each row, find its garment entry and apply:
+    //      basePrice + designTier(totalQty) + transferCost
     document.querySelectorAll('.row-item').forEach(row => {
-      const garment  = row.querySelector('.garment-select').value;
-      const design   = row.querySelector('.design-select').value;
-      const transfer = row.querySelector('.transfer-select').value;
-      const priceEl  = row.querySelector('.price-input');
+      const g = row.querySelector('.garment-select').value;
+      const d = row.querySelector('.design-select').value;
+      const t = row.querySelector('.transfer-select').value;
+      const priceEl = row.querySelector('.price-input');
 
-      // find the pricing entry
-      const entry = pricingData.find(e => e.garment === garment);
-      let unitPrice = 0;
+      const entry = pricingData.find(x => x.garment === g);
+      let unit = 0;
       if (entry) {
-        // base garment cost
-        unitPrice += entry.basePrice;
+        unit += entry.basePrice;
 
-        // design tier cost
-        const tiers = entry.design?.[design];
+        // design tier
+        const tiers = entry.design?.[d];
         if (tiers) {
           for (const [range, cost] of Object.entries(tiers)) {
             if (range.endsWith('+')) {
-              const min = parseInt(range);
-              if (totalQty >= min) unitPrice += cost;
+              if (totalQty >= parseInt(range,10)) unit += cost;
             } else {
               const [low, high] = range.split('-').map(Number);
-              if (totalQty >= low && totalQty <= high) unitPrice += cost;
+              if (totalQty >= low && totalQty <= high) unit += cost;
             }
           }
         }
 
-        // transfer cost per item
-        if (entry.transfer && entry.transfer[transfer] != null) {
-          unitPrice += entry.transfer[transfer];
+        // transfer cost
+        if (entry.transfer?.[t] != null) {
+          unit += entry.transfer[t];
         }
       }
 
-      priceEl.value = unitPrice.toFixed(2);
+      priceEl.value = unit.toFixed(2);
     });
   }
 
-  // 2) Create a new line‐item row
+  // === 3) Create a new line item row ===
   function createLineItem() {
     const row = document.createElement('div');
     row.className = 'row g-3 align-items-end mb-2 row-item';
@@ -63,21 +69,21 @@ document.addEventListener('DOMContentLoaded', () => {
         <label class="form-label">Garment</label>
         <select class="form-select garment-select" required>
           <option value="">Select garment</option>
-          ${pricingData.map(o =>
-            `<option value="${o.garment}">${o.garment}</option>`
-          ).join('')}
+          ${pricingData.map(x => `<option>${x.garment}</option>`).join('')}
         </select>
       </div>
       <div class="col-md-3">
         <label class="form-label">Design</label>
-        <select class="form-select design-select" disabled required>
+        <select class="form-select design-select" required>
           <option value="">Select design</option>
+          ${allDesigns.map(d => `<option>${d}</option>`).join('')}
         </select>
       </div>
       <div class="col-md-2">
         <label class="form-label">Transfer</label>
-        <select class="form-select transfer-select" disabled required>
+        <select class="form-select transfer-select" required>
           <option value="">Select transfer</option>
+          ${allTransfers.map(t => `<option>${t}</option>`).join('')}
         </select>
       </div>
       <div class="col-md-1">
@@ -92,79 +98,61 @@ document.addEventListener('DOMContentLoaded', () => {
         <button type="button" class="btn btn-danger remove-line-item-btn">–</button>
       </div>
     `;
-    lineItemsContainer.append(row);
 
-    // grab row elements
-    const garmentSel  = row.querySelector('.garment-select');
-    const designSel   = row.querySelector('.design-select');
-    const transferSel = row.querySelector('.transfer-select');
-    const qtyInput    = row.querySelector('.qty-input');
-
-    // remove‐row handler
+    // Remove‐row handler
     row.querySelector('.remove-line-item-btn')
        .addEventListener('click', () => {
          row.remove();
          updateAllPrices();
        });
 
-    // when garment changes → populate design & transfer
-    garmentSel.addEventListener('change', () => {
-      const entry = pricingData.find(e => e.garment === garmentSel.value) || {};
-      // design options
-      designSel.innerHTML = '<option value="">Select design</option>';
-      if (entry.design) {
-        Object.keys(entry.design).forEach(d => {
-          designSel.innerHTML += `<option value="${d}">${d}</option>`;
-        });
-        designSel.disabled = false;
-      } else {
-        designSel.disabled = true;
-      }
-      // transfer options
-      transferSel.innerHTML = '<option value="">Select transfer</option>';
-      if (entry.transfer) {
-        Object.keys(entry.transfer).forEach(t => {
-          transferSel.innerHTML += `<option value="${t}">${t}</option>`;
-        });
-        transferSel.disabled = false;
-      } else {
-        transferSel.disabled = true;
-      }
-      // recalc prices
-      updateAllPrices();
+    // Any change in garment/design/transfer/qty triggers a full recalc
+    ['change','input'].forEach(evt => {
+      row.querySelector('.garment-select') .addEventListener(evt, updateAllPrices);
+      row.querySelector('.design-select')  .addEventListener(evt, updateAllPrices);
+      row.querySelector('.transfer-select').addEventListener(evt, updateAllPrices);
+      row.querySelector('.qty-input')      .addEventListener(evt, updateAllPrices);
     });
 
-    // recalc whenever design, transfer, or qty changes
-    designSel.addEventListener('change', updateAllPrices);
-    transferSel.addEventListener('change', updateAllPrices);
-    qtyInput.addEventListener('input', updateAllPrices);
+    lineItemsContainer.append(row);
   }
 
-  // wire up add‐row button & start with one row
+  // Wire up “+ Add Item” and start with one row
   addLineItemBtn.addEventListener('click', createLineItem);
   createLineItem();
 
-  // 3) Preview logic (unchanged aside from using updated unit prices)
+  // === 4) Preview logic ===
   previewBtn.addEventListener('click', () => {
-    // fill in header fields...
-    /* your existing code to set
-         preview-invoice-number, invoice-date, invoice-customer,
-         invoice-project, invoice-due, invoice-status */
-    // then build the items table:
+    // Fill in the header (invoice#, date, customer, etc.)
+    document.getElementById('preview-invoice-number').textContent = 
+      document.getElementById('invoice-number').value;
+    document.getElementById('invoice-date').textContent = 
+      document.getElementById('invoice-date-input').value;
+    document.getElementById('invoice-customer').textContent = 
+      document.getElementById('invoice-customer-input').value;
+    document.getElementById('invoice-project').textContent = 
+      document.getElementById('invoice-project-input').value;
+    document.getElementById('invoice-due').textContent = 
+      document.getElementById('invoice-due-input').value;
+    document.getElementById('invoice-status').textContent = 
+      document.getElementById('invoice-status-input').value;
+
+    // Build the items table
     const tbody = document.getElementById('invoice-summary');
     tbody.innerHTML = '';
     let subtotal = 0;
     document.querySelectorAll('.row-item').forEach(row => {
-      const desc     = row.querySelector('.garment-select').value + ' / ' +
-                       row.querySelector('.design-select').value + ' / ' +
-                       row.querySelector('.transfer-select').value;
-      const qty      = parseInt(row.querySelector('.qty-input').value, 10) || 0;
-      const unit     = parseFloat(row.querySelector('.price-input').value) || 0;
-      const total    = qty * unit;
-      subtotal      += total;
+      const g    = row.querySelector('.garment-select').value;
+      const d    = row.querySelector('.design-select').value;
+      const t    = row.querySelector('.transfer-select').value;
+      const qty  = parseInt(row.querySelector('.qty-input').value, 10) || 0;
+      const unit = parseFloat(row.querySelector('.price-input').value) || 0;
+      const total = qty * unit;
+      subtotal += total;
+
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td>${desc}</td>
+        <td>${g} / ${d} / ${t}</td>
         <td>${qty}</td>
         <td>${unit.toFixed(2)}</td>
         <td>${total.toFixed(2)}</td>
@@ -175,7 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('invoice-preview').style.display = 'block';
   });
 
-  // 4) PDF download (unchanged)
+  // === 5) PDF download ===
   downloadBtn.addEventListener('click', () => {
     html2pdf().from(document.getElementById('invoice-preview'))
              .save(`invoice_${document.getElementById('invoice-number').value}.pdf`);
