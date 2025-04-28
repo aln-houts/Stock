@@ -22,6 +22,8 @@ const config = {
   tanks:   { style:true, color:true,  size:true,  quantity:true },
   hats:    { style:true, color:true,  size:false, quantity:true },
   bags:    { style:true, color:true,  size:false, quantity:true },
+  printtees:{ style:true, color:true,  size:true, quantity:true },
+  transfers:{ style:true, color:false,  size:false, quantity:true },
 };
 const fieldsToShow = config[type] || config['tees'];
 const hasSize      = !!fieldsToShow.size;
