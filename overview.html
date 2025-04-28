@@ -1,26 +1,23 @@
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Inventory Overview</title>
+<!DOCTYPE html>
+<html lang="en">
 
-  <!-- Shared head includes (css + cache-control meta) -->
+<head>
+  <title>Overview</title>
   <div id="head-placeholder"></div>
   <script>
-    fetch("head.html")
-      .then(res => res.text())
-      .then(html => document.getElementById("head-placeholder").innerHTML = html);
+    fetch("head.html").then(res => res.text()).then(html => document.getElementById("head-placeholder").innerHTML = html);
   </script>
 </head>
 
+<body>
+  <header>
+    <div id="menu-placeholder"></div>
+    <script>
+      fetch("menu.html").then(res => res.text()).then(html => document.getElementById("menu-placeholder").innerHTML = html);
+    </script>
+  </header>
+
 <body class="p-4">
-<header>
-  <div id="menu-placeholder"></div>
-  <script>
-    fetch("menu.html")
-      .then(res => res.text())
-      .then(html => document.getElementById("menu-placeholder").innerHTML = html);
-  </script>
-</header>
 
   <h1 class="mb-4">Inventory Overview</h1>
 
