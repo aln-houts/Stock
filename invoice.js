@@ -183,8 +183,7 @@ function lookupTier(tiers, qty) {
     document.getElementById('invoice-preview').style.display = 'block';
   });
 
-// Replace your existing downloadBtn listener with this snippet:
-
+// Replace your old downloadBtn listener with this:
 downloadBtn.addEventListener('click', () => {
   const element = document.getElementById('invoice-preview');
   const invoiceNumber = document.getElementById('invoice-number').value;
@@ -193,7 +192,7 @@ downloadBtn.addEventListener('click', () => {
     margin:       0.5,
     filename:     `invoice_${invoiceNumber}.pdf`,
     image:        { type: 'jpeg', quality: 0.98 },
-    html2canvas:  { scale: 2, scrollY: 0 },
+    html2canvas:  { scale: 2, scrollY: -window.scrollY },
     jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
   };
 
