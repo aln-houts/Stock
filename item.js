@@ -1,16 +1,21 @@
 // item.js
 import { saveSuggestion, loadSuggestions, renderTable, sizes } from './shared.js';
 
-// 1) Determine type from ?type= or #hash (default to 'tees')
-const params = new URLSearchParams(window.location.search);
-const rawType = params.get('type') || window.location.hash.slice(1) || 'tees';
-const type    = rawType.toLowerCase();
+// 1) Determine type from URL (default 'tees')
+const params   = new URLSearchParams(window.location.search);
+const rawType  = params.get('type') || window.location.hash.slice(1) || 'tees';
+const type     = rawType.toLowerCase();
 
-// 2) Storage key and suggestion-key helper
-const keyStore      = `${type}Inventory`;
+// 2) Pick storage key – for 'tees' keep using the old 'inventory' key,
+//    for everything else use `${type}Inventory`
+const keyStore = type === 'tees'
+  ? 'inventory'
+  : `${type}Inventory`;
+
+// 3) Suggestion-key helper (you can leave this as-is or migrate later)
 const suggestionsKey = name => `${type}${name}Suggestions`;
 
-// 3) Per–type form field visibility config
+// 4) Field-visibility config
 const config = {
   tees:    { style:true, color:true,  size:true,  quantity:true },
   hoodies: { style:true, color:true,  size:true,  quantity:true },
@@ -21,16 +26,16 @@ const config = {
 const fieldsToShow = config[type] || config['tees'];
 const hasSize      = !!fieldsToShow.size;
 
-// 4) Update page titles/headings
+// 5) Page titles + headings
 const prettyName = type.charAt(0).toUpperCase() + type.slice(1);
 document.title = prettyName;
 document.getElementById('page-title').textContent = prettyName;
 document.getElementById('form-title').textContent = `Add ${prettyName}`;
 
-// 5) Load existing inventory
+// 6) Load whatever’s in storage
 let inventory = JSON.parse(localStorage.getItem(keyStore)) || {};
 
-// 6) Render & delete helpers
+// 7) Render / delete helpers
 function deleteEntry(key) {
   delete inventory[key];
   localStorage.setItem(keyStore, JSON.stringify(inventory));
@@ -45,43 +50,43 @@ function renderInventory() {
   });
 }
 
-// 7) Initialize form once it's injected
+// 8) Form injection + initialization
 function initForm() {
-  // a) show/hide fields
+  // show/hide fields
   Object.entries(fieldsToShow).forEach(([field, show]) => {
     const wrapper = document.querySelector(`[data-field="${field}"]`);
     if (wrapper) wrapper.style.display = show ? '' : 'none';
   });
 
-  // b) populate size dropdown if needed
+  // populate size dropdown if needed
   if (hasSize) {
     const sizeEl = document.getElementById('size');
     sizes.forEach(s => sizeEl.add(new Option(s, s)));
   }
 
-  // c) suggestion wiring
+  // wire up suggestions
   loadSuggestions(suggestionsKey('Style'), 'styleSuggestions');
-  document.getElementById('style')
-    .addEventListener('change', () => {
-      const st = document.getElementById('style').value.trim().toLowerCase();
-      loadSuggestions(suggestionsKey(`Colors_${st}`), 'colorSuggestions');
-    });
+  document.getElementById('style').addEventListener('change', () => {
+    const st = document.getElementById('style').value.trim().toLowerCase();
+    loadSuggestions(suggestionsKey(`Colors_${st}`), 'colorSuggestions');
+  });
 
-  // d) form submit
+  // submit handler
   document.getElementById('addForm').addEventListener('submit', e => {
     e.preventDefault();
-    const style    = document.getElementById('style').value.trim();
-    const color    = document.getElementById('color').value.trim();
-    const qty      = parseInt(document.getElementById('quantity').value, 10);
-    const size     = hasSize ? document.getElementById('size').value : null;
-    const key      = `${style.toLowerCase()}::${color.toLowerCase()}`;
+    const style = document.getElementById('style').value.trim();
+    const color = document.getElementById('color').value.trim();
+    const qty   = parseInt(document.getElementById('quantity').value, 10);
+    const size  = hasSize ? document.getElementById('size').value : null;
+    const key   = `${style.toLowerCase()}::${color.toLowerCase()}`;
 
+    // initialize and update
     if (!inventory[key]) {
       inventory[key] = { style, color, quantity: 0, sizes: {} };
       sizes.forEach(s => inventory[key].sizes[s] = 0);
     }
     if (hasSize) inventory[key].sizes[size] += qty;
-    else          inventory[key].quantity  = (inventory[key].quantity || 0) + qty;
+    else          inventory[key].quantity = (inventory[key].quantity || 0) + qty;
 
     localStorage.setItem(keyStore, JSON.stringify(inventory));
     saveSuggestion(suggestionsKey('Style'), style);
@@ -90,15 +95,14 @@ function initForm() {
     e.target.reset();
   });
 
-  // e) initial render
+  // initial render
   renderInventory();
 }
 
-// 8) Inject shared form then init
+// 9) Load the shared form template and then init
 fetch('form.html')
   .then(r => r.text())
   .then(html => {
     document.getElementById('form-placeholder').innerHTML = html;
   })
   .then(initForm);
-  
