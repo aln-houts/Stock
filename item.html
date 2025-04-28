@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title id="page-title">Inventory</title>
+
+  <!-- shared head -->
+  <div id="head-placeholder"></div>
+  <script>
+    fetch("head.html")
+      .then(r => r.text())
+      .then(html => document.getElementById("head-placeholder").innerHTML = html);
+  </script>
+</head>
+<body data-type="">
+  <!-- shared nav -->
+  <header>
+    <div id="menu-placeholder"></div>
+    <script>
+      fetch("menu.html")
+        .then(r => r.text())
+        .then(html => document.getElementById("menu-placeholder").innerHTML = html);
+    </script>
+  </header>
+
+  <main class="container mt-4">
+    <h2 id="form-title"></h2>
+    <div id="form-placeholder"></div>
+    <hr class="my-5" />
+    <h2>Inventory Display</h2>
+    <div id="inventoryDisplay" class="table-responsive"></div>
+  </main>
+
+  <!-- shared scripts + item logic -->
+  <script type="module" src="item.js"></script>
+</body>
+</html>
