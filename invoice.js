@@ -1,210 +1,99 @@
 // invoice.js
 
-// 1) Pricing data baked into the JS
+// --- pricingData + lookupTier as before ---
 const pricingData = {
   garments: [
-    { name: "T-shirt G6400",   basePrice: 5.3 },
-    { name: "Pocket Tee G230", basePrice: 7.2 }
-    // …add your other garments here…
+    { name: "T-shirt G6400",   basePrice: 5.5 },
+    { name: "T-shirt G500",   basePrice: 4.50 },
+        { name: "T-shirt Fruit essential",   basePrice: 4.5 },
+        { name: "Long Sleeve G240",   basePrice: 8.5 },
+        { name: "Pocket Tee G230",   basePrice: 8.75 },
+        { name: "Raglan G570",   basePrice: 8.75 },
+        { name: "Tank Top",   basePrice: 6.75 },
+    { name: "Bucket Hat",   basePrice: 3.5 },
+    { name: "Hoodie G185", basePrice: 14.5 }
+    // …add your other garments…
   ],
   designTiers: {
     "Single Press": { "1-11": 6, "12-24": 5, "25-48": 4, "49+": 3.5 },
     "Double Side":   { "1-11": 7, "12-24": 5.5, "25-48": 4.5, "49+": 3.75 }
   },
   transferCosts: {
-    "12x5.4": 0.6875,
+    "12x5.4": 0.75,
+        "4x4": 0.25,
+        "12x11": 1.5,
+        "12x11 plus pocket": 1.75,
+        "11x18": 2.25,
     "12x22": 2.75
-    // …add your other transfer sizes…
+    // …add other transfers…
   }
 };
+function lookupTier(tiers, qty) { /*…same as before…*/ }
 
-// 2) Helper to pick the right tier cost
-function lookupTier(tiers, qty) {
-  for (const range in tiers) {
-    const cost = tiers[range];
-    if (range.endsWith('+')) {
-      if (qty >= parseInt(range, 10)) return cost;
-    } else {
-      const [min, max] = range.split('-').map(Number);
-      if (qty >= min && qty <= max) return cost;
-    }
-  }
-  return 0;
-}
-
-// 3) Main setup (defer ensures DOM is ready)
 (function() {
-  const lineItems  = document.getElementById('line-items');
-  const addBtn     = document.getElementById('add-line-item-btn');
-  const previewBtn = document.getElementById('preview-invoice-btn');
-  const downloadBtn= document.getElementById('download-invoice-btn');
+  // Grab DOM elements
+  const lineItems    = document.getElementById('line-items');
+  const addBtn       = document.getElementById('add-line-item-btn');
+  const previewBtn   = document.getElementById('preview-invoice-btn');
+  const downloadBtn  = document.getElementById('download-invoice-btn');
+  const saveBtn      = document.getElementById('save-invoice-btn');
 
-  // Build global <option> strings
-  const garmentOpts  = pricingData.garments
-    .map(g => `<option>${g.name}</option>`).join('');
-  const designOpts   = Object.keys(pricingData.designTiers)
-    .map(d => `<option>${d}</option>`).join('');
-  const transferOpts = Object.keys(pricingData.transferCosts)
-    .map(t => `<option>${t}</option>`).join('');
+  // Load or init invoices array
+  const invoices = JSON.parse(localStorage.getItem('invoices') || '[]');
 
-  // Recalculate every row’s unit price based on the grand total qty
-  function updateAllPrices() {
-    let totalQty = 0;
-    document.querySelectorAll('.qty-input').forEach(el => {
-      const v = parseInt(el.value, 10);
-      if (!isNaN(v)) totalQty += v;
-    });
+  // …build garmentOpts, designOpts, transferOpts, updateAllPrices(), createLineItem()… (unchanged)…
 
-    document.querySelectorAll('.row-item').forEach(row => {
-      const g = row.querySelector('.garment-select').value;
-      const d = row.querySelector('.design-select').value;
-      const t = row.querySelector('.transfer-select').value;
-      const priceEl = row.querySelector('.price-input');
-
-      // base price
-      const entry = pricingData.garments.find(x => x.name === g);
-      let unit = entry ? entry.basePrice : 0;
-
-      // add design tier
-      if (pricingData.designTiers[d]) {
-        unit += lookupTier(pricingData.designTiers[d], totalQty);
-      }
-
-      // add transfer cost
-      if (pricingData.transferCosts[t] != null) {
-        unit += pricingData.transferCosts[t];
-      }
-
-      priceEl.value = unit.toFixed(2);
-    });
-  }
-
-  // Create one line‐item row
-  function createLineItem() {
-    const row = document.createElement('div');
-    row.className = 'row g-3 align-items-end mb-2 row-item';
-    row.innerHTML = `
-      <div class="col-md-3">
-        <label>Garment</label>
-        <select class="form-select garment-select" required>
-          <option value="">Select garment</option>
-          ${garmentOpts}
-        </select>
-      </div>
-      <div class="col-md-3">
-        <label>Design</label>
-        <select class="form-select design-select" required>
-          <option value="">Select design</option>
-          ${designOpts}
-        </select>
-      </div>
-      <div class="col-md-2">
-        <label>Transfer</label>
-        <select class="form-select transfer-select" required>
-          <option value="">Select transfer</option>
-          ${transferOpts}
-        </select>
-      </div>
-      <div class="col-md-1">
-        <label>Qty</label>
-        <input type="number" class="form-control qty-input" value="1" min="1" required>
-      </div>
-      <div class="col-md-2">
-        <label>Unit Price</label>
-        <input type="number" class="form-control price-input" value="0.00" readonly>
-      </div>
-      <div class="col-md-1">
-        <button type="button" class="btn btn-danger remove-line-item-btn">–</button>
-      </div>
-    `;
-    lineItems.append(row);
-
-    // remove row
-    row.querySelector('.remove-line-item-btn')
-       .addEventListener('click', () => {
-         row.remove();
-         updateAllPrices();
-       });
-
-    // recalc on any change
-    ['change','input'].forEach(evt => {
-      row.querySelector('.garment-select') .addEventListener(evt, updateAllPrices);
-      row.querySelector('.design-select')  .addEventListener(evt, updateAllPrices);
-      row.querySelector('.transfer-select').addEventListener(evt, updateAllPrices);
-      row.querySelector('.qty-input')      .addEventListener(evt, updateAllPrices);
-    });
-  }
-
-  // wire up Add‐Item
+  // Wire up Add‐Item & initial row
   addBtn.addEventListener('click', createLineItem);
-  createLineItem();  // initial row
+  createLineItem();
 
-  // Preview logic
-  previewBtn.addEventListener('click', () => {
-    // fill header info...
-    document.getElementById('preview-invoice-number').textContent =
-      document.getElementById('invoice-number').value;
-    document.getElementById('invoice-date').textContent =
-      document.getElementById('invoice-date-input').value;
-    document.getElementById('invoice-customer').textContent =
-      document.getElementById('invoice-customer-input').value;
-    document.getElementById('invoice-project').textContent =
-      document.getElementById('invoice-project-input').value;
-    document.getElementById('invoice-due').textContent =
-      document.getElementById('invoice-due-input').value;
-    document.getElementById('invoice-status').textContent =
-      document.getElementById('invoice-status-input').value;
+  // Preview logic (unchanged) …
+  previewBtn.addEventListener('click', () => { /*…*/ });
 
-    updateAllPrices();
+  // Download logic (unchanged, or your html2pdf options)… 
+  downloadBtn.addEventListener('click', () => { /*…*/ });
 
-    // build summary
-    const tbody = document.getElementById('invoice-summary');
-    tbody.innerHTML = '';
-    let subtotal = 0;
-    document.querySelectorAll('.row-item').forEach(row => {
+  // --- NEW: Save Invoice handler ---
+  saveBtn.addEventListener('click', () => {
+    // Gather header info
+    const invoiceNumber = document.getElementById('invoice-number').value;
+    const invoiceDate   = document.getElementById('invoice-date-input').value;
+    const customer      = document.getElementById('invoice-customer-input').value;
+    const project       = document.getElementById('invoice-project-input').value;
+    const dueDate       = document.getElementById('invoice-due-input').value;
+    const status        = document.getElementById('invoice-status-input').value;
+
+    // Build line-item array
+    const items = Array.from(document.querySelectorAll('.row-item')).map(row => {
       const g   = row.querySelector('.garment-select').value;
       const d   = row.querySelector('.design-select').value;
       const t   = row.querySelector('.transfer-select').value;
       const q   = parseInt(row.querySelector('.qty-input').value,10) || 0;
       const u   = parseFloat(row.querySelector('.price-input').value) || 0;
-      const tot = q * u;
-      subtotal += tot;
-
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${g} / ${d} / ${t}</td>
-        <td>${q}</td>
-        <td>${u.toFixed(2)}</td>
-        <td>${tot.toFixed(2)}</td>
-      `;
-      tbody.append(tr);
+      return { garment: g, design: d, transfer: t, qty: q, unitPrice: u };
     });
-    document.getElementById('invoice-total').textContent = subtotal.toFixed(2);
-    document.getElementById('invoice-preview').style.display = 'block';
+
+    // Compute subtotal
+    const subtotal = items.reduce((sum, it) => sum + it.qty * it.unitPrice, 0);
+
+    // Create invoice object
+    const invoiceObj = {
+      invoiceNumber,
+      invoiceDate,
+      customer,
+      project,
+      dueDate,
+      status,
+      items,
+      subtotal
+    };
+
+    // Save and confirm
+    invoices.push(invoiceObj);
+    localStorage.setItem('invoices', JSON.stringify(invoices));
+    alert(`Invoice ${invoiceNumber} saved!`);
+
+    // Optionally redirect to list view
+    // window.location = 'invoices.html';
   });
-// In invoice.js, replace your existing downloadBtn listener with this:
-
-downloadBtn.addEventListener('click', () => {
-  const element = document.getElementById('invoice-preview');
-  const invoiceNumber = document.getElementById('invoice-number').value;
-
-  // Make sure the element is visible and at the top of the viewport
-  element.style.display = 'block';
-  element.scrollIntoView({ behavior: 'instant', block: 'start' });
-
-  const opt = {
-    margin:       0.5,
-    filename:     `invoice_${invoiceNumber}.pdf`,
-    image:        { type: 'jpeg', quality: 0.98 },
-    html2canvas:  {
-      scale: 2,
-      scrollY: 0    // capture from the element’s top, not the window’s scroll
-    },
-    jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
-  };
-
-  html2pdf().set(opt).from(element).save();
-});
-
-
 })();
