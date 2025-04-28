@@ -20,14 +20,15 @@
 
     <h2>Create Invoice</h2>
 
+    <!-- Invoice Details Section -->
     <div class="form-section row">
         <div class="col-md-6 mb-3">
             <label for="customerName" class="form-label">Customer Name</label>
-            <input type="text" class="form-control" id="customerName">
+            <input type="text" class="form-control" id="customerName" placeholder="Enter customer name">
         </div>
         <div class="col-md-6 mb-3">
             <label for="projectName" class="form-label">Project Name</label>
-            <input type="text" class="form-control" id="projectName">
+            <input type="text" class="form-control" id="projectName" placeholder="Enter project name">
         </div>
         <div class="col-md-4 mb-3">
             <label for="dateOfIssue" class="form-label">Date of Issue</label>
@@ -47,9 +48,45 @@
         </div>
     </div>
 
-    <div id="invoiceItemsSection">
-        <!-- Item adding form and table will go here -->
-        <p>Items section placeholder (preserved from your original file).</p>
+    <!-- Line Items Section -->
+    <div class="form-section">
+        <h4>Add Item</h4>
+        <div class="row g-3 align-items-center mb-3">
+            <div class="col-md-4">
+                <input type="text" class="form-control" id="itemDescription" placeholder="Item description">
+            </div>
+            <div class="col-md-2">
+                <input type="number" class="form-control" id="itemQuantity" placeholder="Quantity" min="1" value="1">
+            </div>
+            <div class="col-md-2">
+                <input type="number" class="form-control" id="itemPrice" placeholder="Unit Price" min="0" step="0.01">
+            </div>
+            <div class="col-md-2">
+                <button id="addItemBtn" class="btn btn-primary">Add Item</button>
+            </div>
+        </div>
+        <table class="table table-bordered" id="invoiceTable">
+            <thead>
+                <tr>
+                    <th>Description</th>
+                    <th>Quantity</th>
+                    <th>Unit Price</th>
+                    <th>Total</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Items will be dynamically added here -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Invoice Summary -->
+    <div class="form-section">
+        <h4>Invoice Summary</h4>
+        <p><strong>Total Quantity:</strong> <span id="totalQuantity">0</span></p>
+        <p><strong>Total Amount:</strong> $<span id="totalAmount">0.00</span></p>
+        <button id="generateInvoiceBtn" class="btn btn-success">Generate Invoice</button>
     </div>
 
     <script src="invoice.js"></script>
