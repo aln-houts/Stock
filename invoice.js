@@ -183,9 +183,21 @@ function lookupTier(tiers, qty) {
     document.getElementById('invoice-preview').style.display = 'block';
   });
 
-  // PDF download
-  downloadBtn.addEventListener('click', () => {
-    html2pdf().from(document.getElementById('invoice-preview'))
-             .save(`invoice_${document.getElementById('invoice-number').value}.pdf`);
-  });
+// Replace your existing downloadBtn listener with this snippet:
+
+downloadBtn.addEventListener('click', () => {
+  const element = document.getElementById('invoice-preview');
+  const invoiceNumber = document.getElementById('invoice-number').value;
+
+  const opt = {
+    margin:       0.5,
+    filename:     `invoice_${invoiceNumber}.pdf`,
+    image:        { type: 'jpeg', quality: 0.98 },
+    html2canvas:  { scale: 2, scrollY: 0 },
+    jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+  };
+
+  html2pdf().set(opt).from(element).save();
+});
+
 })();
