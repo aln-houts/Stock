@@ -182,21 +182,29 @@ function lookupTier(tiers, qty) {
     document.getElementById('invoice-total').textContent = subtotal.toFixed(2);
     document.getElementById('invoice-preview').style.display = 'block';
   });
+// In invoice.js, replace your existing downloadBtn listener with this:
 
-// Replace your old downloadBtn listener with this:
 downloadBtn.addEventListener('click', () => {
   const element = document.getElementById('invoice-preview');
   const invoiceNumber = document.getElementById('invoice-number').value;
+
+  // Make sure the element is visible and at the top of the viewport
+  element.style.display = 'block';
+  element.scrollIntoView({ behavior: 'instant', block: 'start' });
 
   const opt = {
     margin:       0.5,
     filename:     `invoice_${invoiceNumber}.pdf`,
     image:        { type: 'jpeg', quality: 0.98 },
-    html2canvas:  { scale: 2, scrollY: -window.scrollY },
+    html2canvas:  {
+      scale: 2,
+      scrollY: 0    // capture from the element’s top, not the window’s scroll
+    },
     jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
   };
 
   html2pdf().set(opt).from(element).save();
 });
+
 
 })();
