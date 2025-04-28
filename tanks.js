@@ -1,6 +1,7 @@
 
-let inventory = JSON.parse(localStorage.getItem("tanksInventory")) || {};
+import { saveSuggestion, loadSuggestions, renderTable, sizes } from './shared.js';
 
+let inventory = JSON.parse(localStorage.getItem("tanksInventory")) || {};
 document.getElementById("addForm").addEventListener("submit", function (e) {
   e.preventDefault();
   const styleInput = document.getElementById("style").value.trim();
@@ -14,7 +15,15 @@ document.getElementById("addForm").addEventListener("submit", function (e) {
     inventory[keyStr] = {
       style: styleInput,
       color: colorInput,
-      sizes: { XS: 0, S: 0, M: 0, L: 0, XL: 0, XX: 0, '3X': 0, '4X': 0, '5X': 0 }
+      sizes: {
+        XS: 0,
+        S: 0,
+        M: 0,
+        L: 0,
+        XL: 0,
+        XX: 0,
+        "3X": 0, "4X": 0, "5X": 0,
+      },
     };
   }
 
@@ -28,16 +37,18 @@ document.getElementById("addForm").addEventListener("submit", function (e) {
 });
 
 function deleteEntry(keyStr) {
-  delete inventory[keyStr];
-  localStorage.setItem("tanksInventory", JSON.stringify(inventory));
-  renderInventory();
+  if (confirm("Are you sure you want to delete this entry?")) {
+    delete inventory[keyStr];
+    localStorage.setItem("tanksInventory", JSON.stringify(inventory));
+    renderInventory();
+  }
 }
 
 function renderInventory() {
   renderTable(inventory, {
     showColor: true,
     showSize: true,
-    keyType: "style",
+    keyType: 'style',
     onDelete: "deleteEntry"
   });
 }
@@ -45,7 +56,7 @@ function renderInventory() {
 loadSuggestions("tanksStyleSuggestions", "styleSuggestions");
 
 document.getElementById("style").addEventListener("change", function () {
-  const style = this.value.trim().toLowerCase();
+    const style = this.value.trim().toLowerCase();
   loadSuggestions("tanksColors_" + style, "colorSuggestions");
 });
 

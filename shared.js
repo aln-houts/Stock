@@ -63,3 +63,6 @@ function renderTable(inventory, options = {}) {
   table.appendChild(tbody);
   display.appendChild(table);
 }
+
+const sizes = ["XS", "S", "M", "L", "XL", "XX", "3X", "4X", "5X"];
+export { saveSuggestion, loadSuggestions, renderTable, sizes };

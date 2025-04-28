@@ -1,3 +1,4 @@
+import { saveSuggestion, loadSuggestions, renderTable, sizes } from './shared.js';
 
 let inventory = JSON.parse(localStorage.getItem("bagsInventory")) || {};
 

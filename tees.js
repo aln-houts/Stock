@@ -1,4 +1,6 @@
 
+import { saveSuggestion, loadSuggestions, renderTable, sizes } from './shared.js';
+
 let inventory = JSON.parse(localStorage.getItem("teesInventory")) || {};
 
 document.getElementById("addForm").addEventListener("submit", function (e) {
@@ -14,7 +16,7 @@ document.getElementById("addForm").addEventListener("submit", function (e) {
     inventory[keyStr] = {
       style: styleInput,
       color: colorInput,
-      sizes: {{ XS: 0, S: 0, M: 0, L: 0, XL: 0, XX: 0, '3X': 0, '4X': 0, '5X': 0 }}
+      sizes: sizes.reduce((acc, size) => ({ ...acc, [size]: 0 }), {})
     };
   }
 
@@ -33,20 +35,11 @@ function deleteEntry(keyStr) {
   renderInventory();
 }
 
-function renderInventory() {
-  renderTable(inventory, {
-    showColor: true,
-    showSize: true,
-    keyType: "style",
-    onDelete: "deleteEntry"
-  });
-}
+function renderInventory() { renderTable(inventory, { showColor: true, showSize: true, keyType: "style", onDelete: "deleteEntry" }); }
 
 loadSuggestions("teesStyleSuggestions", "styleSuggestions");
 
 document.getElementById("style").addEventListener("change", function () {
   const style = this.value.trim().toLowerCase();
   loadSuggestions("teesColors_" + style, "colorSuggestions");
-});
-
-renderInventory();
+});renderInventory();

@@ -1,6 +1,6 @@
 
-let inventory = JSON.parse(localStorage.getItem("hatsInventory")) || {};
-
+import { saveSuggestion, loadSuggestions, renderTable, sizes } from "./shared.js";
+import { saveSuggestion, loadSuggestions, renderTable, sizes } from './shared.js';
 document.getElementById("addForm").addEventListener("submit", function (e) {
   e.preventDefault();
   const styleInput = document.getElementById("style").value.trim();
@@ -12,6 +12,7 @@ document.getElementById("addForm").addEventListener("submit", function (e) {
 
   if (!inventory[keyStr]) {
     inventory[keyStr] = {
+        
       style: styleInput,
       color: colorInput,
       quantity: 0
@@ -27,26 +28,19 @@ document.getElementById("addForm").addEventListener("submit", function (e) {
   e.target.reset();
 });
 
+let inventory = JSON.parse(localStorage.getItem("hatsInventory")) || {};
+
 function deleteEntry(keyStr) {
-  delete inventory[keyStr];
-  localStorage.setItem("hatsInventory", JSON.stringify(inventory));
-  renderInventory();
+    delete inventory[keyStr];
+    localStorage.setItem("hatsInventory", JSON.stringify(inventory));
+    renderInventory();
 }
 
 function renderInventory() {
-  renderTable(inventory, {
-    showColor: true,
-    showSize: false,
-    keyType: "style",
-    onDelete: "deleteEntry"
-  });
+    renderTable(inventory, { showColor: true, showSize: false, keyType: "style", onDelete: "deleteEntry" });
 }
-
 loadSuggestions("hatsStyleSuggestions", "styleSuggestions");
-
-document.getElementById("style").addEventListener("change", function () {
-  const style = this.value.trim().toLowerCase();
-  loadSuggestions("hatsColors_" + style, "colorSuggestions");
-});
-
+document.getElementById("style").addEventListener("change", () => loadSuggestions("hatsColors_" + document.getElementById("style").value.trim().toLowerCase(), "colorSuggestions"));
 renderInventory();
+
+

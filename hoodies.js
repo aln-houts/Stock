@@ -1,4 +1,6 @@
-
+import { saveSuggestion, loadSuggestions, renderTable, sizes } from './shared.js';
+import { saveSuggestion, loadSuggestions, renderTable, sizes } from './shared.js';
+const validSizes = sizes;
 let inventory = JSON.parse(localStorage.getItem("hoodiesInventory")) || {};
 
 document.getElementById("addForm").addEventListener("submit", function (e) {
@@ -14,7 +16,7 @@ document.getElementById("addForm").addEventListener("submit", function (e) {
     inventory[keyStr] = {
       style: styleInput,
       color: colorInput,
-      sizes: { XS: 0, S: 0, M: 0, L: 0, XL: 0, XX: 0, '3X': 0, '4X': 0, '5X': 0 }
+      sizes: Object.fromEntries(validSizes.map(s => [s, 0]))
     };
   }
 
@@ -34,6 +36,7 @@ function deleteEntry(keyStr) {
 }
 
 function renderInventory() {
+  const inventoryDisplay = document.getElementById('inventoryDisplay');
   renderTable(inventory, {
     showColor: true,
     showSize: true,
