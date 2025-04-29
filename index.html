@@ -1,185 +1,130 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Inventory Overview</title>
-
-  <!-- shared head (meta, CSS, cache-control) -->
-  <div id="head-placeholder"></div>
-  <script>
-    fetch("head.html")
-      .then(res => res.text())
-      .then(html => document.getElementById("head-placeholder").innerHTML = html);
-  </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Overview</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Chart.js library -->
 </head>
 <body>
-  <!-- shared navbar -->
-  <header>
-    <div id="menu-placeholder"></div>
+    <h1>Overview Page</h1>
+    
+    <!-- Display total counts for each item type -->
+    <div id="item-counts">
+        <p>Total Tees: <span id="total-tees">Loading...</span></p>
+        <p>Total Tanks: <span id="total-tanks">Loading...</span></p>
+        <p>Total Hoodies: <span id="total-hoodies">Loading...</span></p>
+        <!-- You can add more items here if needed -->
+    </div>
+
+    <h2>Item Distribution Chart</h2>
+    <canvas id="itemChart"></canvas> <!-- Chart container -->
+
     <script>
-      fetch("menu.html")
-        .then(res => res.text())
-        .then(html => document.getElementById("menu-placeholder").innerHTML = html);
-    </script>
-  </header>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Function to fetch total items for a given type of product
+            function fetchItemCount(pageUrl) {
+                return fetch(pageUrl)
+                    .then(response => response.text())
+                    .then(html => {
+                        // Parse the HTML to extract the total items (this is an example, adjust based on your structure)
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+                        const itemCount = doc.querySelector('.item-count'); // Adjust to match your element that holds the item count
+                        return itemCount ? parseInt(itemCount.innerText) : 0;
+                    });
+            }
 
-  <main>
-    <h1 class="mb-4">Inventory Overview</h1>
+            // Fetch item counts from different pages
+            Promise.all([
+                fetchItemCount('/tees.html'),
+                fetchItemCount('/tanks.html'),
+                fetchItemCount('/hoodies.html'),
+                // Add more pages here if needed
+            ])
+            .then(itemCounts => {
+                // Update the total counts in the HTML
+                document.getElementById('total-tees').innerText = itemCounts[0];
+                document.getElementById('total-tanks').innerText = itemCounts[1];
+                document.getElementById('total-hoodies').innerText = itemCounts[2];
 
-    <!-- GitHub Token Setup -->
-    <div class="card mb-4">
-      <div class="card-header">Token Setup</div>
-      <div class="card-body">
-        <label for="setupToken" class="form-label">GitHub Token</label>
-        <input type="password" id="setupToken" class="form-control mb-2" />
-        <label for="setupPIN" class="form-label">4-digit PIN</label>
-        <input type="password" id="setupPIN" class="form-control mb-2" maxlength="4" />
-        <button class="btn btn-outline-primary" onclick="saveToken()">Save Token</button>
-      </div>
-    </div>
+                // Once we have the data, create the chart
+                createChart(itemCounts);
+            });
 
-    <!-- Unlock / Reset -->
-    <div class="mb-4">
-      <label for="pinInput" class="form-label">Enter PIN to unlock save access</label>
-      <input type="password" id="pinInput" class="form-control mb-2" maxlength="4" />
-      <button class="btn btn-outline-secondary" onclick="unlockToken()">Unlock</button>
-      <button class="btn btn-danger mt-2" onclick="resetToken()">Reset Credentials</button>
-    </div>
-
-    <!-- Sync & Save Buttons -->
-    <div class="mb-3">
-      <button id="syncBtn" class="btn btn-primary">Sync from GitHub</button>
-      <button id="saveBtn" class="btn btn-success ms-2" disabled>Save to GitHub</button>
-    </div>
-
-    <!-- Status Message -->
-    <div id="status" class="mb-3 fw-bold"></div>
-  </main>
-
-  <!-- Token and Status JS -->
-  <script>
-    function saveToken() {
-      const token = document.getElementById("setupToken").value;
-      const pin = document.getElementById("setupPIN").value;
-      if (token && pin.length === 4) {
-        localStorage.setItem("ghToken", token);
-        localStorage.setItem("ghPin", pin);
-        alert("Token and PIN saved successfully.");
-        document.getElementById("setupToken").value = "";
-        document.getElementById("setupPIN").value = "";
-      } else {
-        alert("Please enter a token and a 4-digit PIN.");
-      }
-    }
-
-    function unlockToken() {
-      const enteredPin = document.getElementById("pinInput").value;
-      const storedPin = localStorage.getItem("ghPin");
-      const token = localStorage.getItem("ghToken");
-
-      if (enteredPin === storedPin && token) {
-        window.githubToken = token;
-        document.getElementById("saveBtn").disabled = false;
-        updateStatus("Token unlocked. Save button is active.", "success");
-      } else {
-        updateStatus("Incorrect PIN or token not set.", "danger");
-      }
-    }
-
-    function resetToken() {
-      localStorage.removeItem("ghToken");
-      localStorage.removeItem("ghPin");
-      alert("Credentials cleared.");
-      location.reload();
-    }
-
-    function updateStatus(msg, type = "success") {
-      const status = document.getElementById("status");
-      status.textContent = msg;
-      status.className = `mb-3 fw-bold text-${type}`;
-    }
-  </script>
-
-  <!-- Firebase & GitHub Sync JS -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
-    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyAEdQWx8mPqO48ZzvtM_Gimt-Hdw68Kmq4",
-      authDomain: "inventory-app-609ca.firebaseapp.com",
-      projectId: "inventory-app-609ca",
-      storageBucket: "inventory-app-609ca.firebasestorage.app",
-      messagingSenderId: "921704322566",
-      appId: "1:921704322566:web:4dab06516bd4bc3a18d587"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    const owner = "aln-houts";
-    const repo = "Stock";
-    const path = "data/inventory.json";
-    const branch = "main";
-
-    async function loadCategory(category) {
-      try {
-        const ref = doc(db, "inventory", category);
-        const snap = await getDoc(ref);
-        if (snap.exists()) {
-          localStorage.setItem(category + "Inventory", JSON.stringify(snap.data().data));
-          console.log(`Loaded ${category} from Firebase`);
-        }
-      } catch (e) {
-        console.error("Error loading", category, e);
-      }
-    }
-
-    // Sync button
-    document.getElementById("syncBtn").addEventListener("click", () => {
-      updateStatus("Syncing…", "info");
-      ["tees","tanks","hoodies","hats","bags","printtees","transfers"]
-        .forEach(loadCategory);
-    });
-
-    // Save button
-    document.getElementById("saveBtn").addEventListener("click", async () => {
-      if (!window.githubToken) {
-        updateStatus("Unlock with PIN first.", "danger");
-        return;
-      }
-      updateStatus("Saving…", "info");
-      try {
-        const content = localStorage.getItem("inventory");
-        const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
-        const res = await fetch(url, {
-          method: "PUT",
-          headers: {
-            Authorization: `token ${githubToken}`,
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            message: `Update inventory: ${new Date().toISOString()}`,
-            content: btoa(unescape(encodeURIComponent(content))),
-            branch
-          })
+            // Create a chart to display the item distribution
+            function createChart(itemCounts) {
+                const ctx = document.getElementById('itemChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar', // You can change to 'pie', 'line', etc.
+                    data: {
+                        labels: ['Tees', 'Tanks', 'Hoodies'], // Labels for each product type
+                        datasets: [{
+                            label: 'Item Count',
+                            data: itemCounts, // Data from the fetched pages
+                            backgroundColor: ['#FF5733', '#33FF57', '#3357FF'], // Different colors for each bar
+                            borderColor: ['#FF5733', '#33FF57', '#3357FF'],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
         });
-        if (res.ok) {
-          updateStatus("Inventory saved to GitHub!", "success");
-        } else {
-          const err = await res.json();
-          updateStatus(`GitHub error: ${err.message}`, "danger");
-        }
-      } catch (e) {
-        updateStatus("Save failed.", "danger");
-        console.error(e);
-      }
-    });
-  </script>
+    </script>
 
-  <!-- shared scripts (Bootstrap + shared.js) -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="shared.js"></script>
+    <script>
+        // Check if the data exists in localStorage and load it, otherwise fetch from GitHub
+        document.addEventListener('DOMContentLoaded', function() {
+            const inventoryData = JSON.parse(localStorage.getItem('inventoryData') || '[]');
+            if (inventoryData.length) {
+                // Use inventoryData from localStorage
+                displayData(inventoryData);
+            } else {
+                // Prompt for pin to retrieve data from GitHub
+                promptForPin();
+            }
+
+            function displayData(data) {
+                // Display data on the page (this could be totals or charts, etc.)
+                console.log(data); // You would replace this with actual code to update the UI
+            }
+
+            function promptForPin() {
+                const pin = prompt("Please enter your pin code:");
+                if (pin) {
+                    retrieveGitHubData(pin);
+                }
+            }
+
+            function retrieveGitHubData(pin) {
+                const githubKey = localStorage.getItem('githubKey');
+                if (!githubKey) {
+                    alert("No GitHub key found. Please set it first.");
+                    return;
+                }
+
+                // Assuming you're fetching from a GitHub JSON file or an API
+                fetch(`https://api.github.com/repos/your-username/your-repo/contents/data.json?ref=${githubKey}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Store data in localStorage for future use
+                        localStorage.setItem('inventoryData', JSON.stringify(data));
+                        displayData(data); // Show the data
+                    })
+                    .catch(error => {
+                        console.error('Error fetching data:', error);
+                    });
+            }
+        });
+    </script>
+
 </body>
 </html>
