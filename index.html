@@ -41,15 +41,20 @@
 <script>
   // Wait for the DOM to fully load
   document.addEventListener('DOMContentLoaded', function() {
-    // Retrieve the stored inventory data
-    const teesData = JSON.parse(localStorage.getItem("teesInventory"));
-    const tanksData = JSON.parse(localStorage.getItem("tanksInventory"));
-    const hoodiesData = JSON.parse(localStorage.getItem("hoodiesInventory"));
+    // Retrieve the stored inventory data for Tees, Tanks, and Hoodies
+    const teesData = JSON.parse(localStorage.getItem("teesInventory")) || [];
+    const tanksData = JSON.parse(localStorage.getItem("tanksInventory")) || [];
+    const hoodiesData = JSON.parse(localStorage.getItem("hoodiesInventory")) || [];
 
-    // Process the data to extract item counts
-    const teesCount = teesData ? teesData.length : 0;
-    const tanksCount = tanksData ? tanksData.length : 0;
-    const hoodiesCount = hoodiesData ? hoodiesData.length : 0;
+    // Function to sum item counts from an inventory array
+    function getTotalItemCount(inventory) {
+      return inventory.reduce((total, item) => total + (item.count || 0), 0);
+    }
+
+    // Get the total count for each product category
+    const teesCount = getTotalItemCount(teesData);
+    const tanksCount = getTotalItemCount(tanksData);
+    const hoodiesCount = getTotalItemCount(hoodiesData);
 
     // Update the UI with the item counts
     document.getElementById("total-tees").innerText = teesCount;
@@ -82,11 +87,12 @@
         }
       });
     } else {
-      // If data is missing, show a warning or message
-      console.error('Missing data for one or more categories');
+      // If no data is available, log a message or show an error
+      console.error('No inventory data available');
     }
   });
 </script>
+
 	    
         <h2>Item Distribution Chart</h2>
         <canvas id="itemChart"></canvas> <!-- Chart container -->
