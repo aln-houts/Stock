@@ -1,12 +1,12 @@
-<!-- Shared Hamburger Menu -->
+<!-- menu.html -->
 <nav class="navbar navbar-dark bg-dark px-3">
   <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu">
     <span class="navbar-toggler-icon"></span>
   </button>
-  <a class="navbar-brand d-flex align-items-center" href="overview.html">
-  <img src="logo.png" alt="Logo" style="height: 90px; margin-right: 8px;">
-</a>
-
+  <a class="navbar-brand d-flex align-items-center" href="#" 
+     hx-get="overview.html" hx-target="#main-content" hx-push-url="true">
+    <img src="logo.png" alt="Logo" style="height: 90px; margin-right: 8px;">
+  </a>
 </nav>
 
 <div class="offcanvas offcanvas-start bg-dark text-white" tabindex="-1" id="sidebarMenu">
@@ -16,30 +16,60 @@
   </div>
   <div class="offcanvas-body">
     <ul class="nav flex-column">
-  <li class="nav-item">
-    <a class="nav-link text-white" href="item.html?type=tees">Blank Tees</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link text-white" href="item.html?type=tanks">Tanks</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link text-white" href="item.html?type=hoodies">Hoodies</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link text-white" href="item.html?type=hats">Hats</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link text-white" href="item.html?type=bags">Bags</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link text-white" href="item.html?type=printtees">Print Tees</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link text-white" href="item.html?type=transfers">Transfers</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link text-white" href="create-invoice.html">Create Invoice</a>
-  </li>
-</ul>
+      <li class="nav-item">
+        <a class="nav-link text-white" 
+           hx-get="item.html?type=tees" hx-target="#main-content" hx-push-url="true">
+          Blank Tees
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link text-white" 
+           hx-get="item.html?type=tanks" hx-target="#main-content" hx-push-url="true">
+          Tanks
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link text-white" 
+           hx-get="item.html?type=hoodies" hx-target="#main-content" hx-push-url="true">
+          Hoodies
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link text-white" 
+           hx-get="item.html?type=hats" hx-target="#main-content" hx-push-url="true">
+          Hats
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link text-white" 
+           hx-get="item.html?type=bags" hx-target="#main-content" hx-push-url="true">
+          Bags
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link text-white"
+           hx-get="item.html?type=print-tees" hx-target="#main-content" hx-push-url="true">
+          Print Tees
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link text-white"
+           hx-get="transfers.html" hx-target="#main-content" hx-push-url="true">
+          Transfers
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link text-white"
+           hx-get="create-invoice.html" hx-target="#main-content" hx-push-url="true">
+          Create Invoice
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link text-white"
+           hx-get="invoices.html" hx-target="#main-content" hx-push-url="true">
+          Saved Invoices
+        </a>
+      </li>
+    </ul>
   </div>
 </div>
