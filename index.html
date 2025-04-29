@@ -7,28 +7,38 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Chart.js library -->
 </head>
 <body>
-      <main class="container mt-4">
-    <h1>Overview Page</h1>
-    
-    <!-- Display total counts for each item type -->
-    <div id="item-counts">
-        <p>Total Tees: <span id="total-tees">Loading...</span></p>
-        <p>Total Tanks: <span id="total-tanks">Loading...</span></p>
-        <p>Total Hoodies: <span id="total-hoodies">Loading...</span></p>
-        <!-- You can add more items here if needed -->
-    </div>
+    <main class="container mt-4">
+        <!-- Existing Menu (loaded dynamically from menu.html) -->
+        <div id="menu-placeholder"></div>
 
-    <h2>Item Distribution Chart</h2>
-    <canvas id="itemChart"></canvas> <!-- Chart container -->
+        <h1>Overview Page</h1>
+        
+        <!-- Display total counts for each item type -->
+        <div id="item-counts">
+            <p>Total Tees: <span id="total-tees">Loading...</span></p>
+            <p>Total Tanks: <span id="total-tanks">Loading...</span></p>
+            <p>Total Hoodies: <span id="total-hoodies">Loading...</span></p>
+            <!-- You can add more items here if needed -->
+        </div>
+
+        <h2>Item Distribution Chart</h2>
+        <canvas id="itemChart"></canvas> <!-- Chart container -->
+
+    </main>
 
     <script>
+        // Dynamic loading of the menu
+        fetch("menu.html")
+            .then(res => res.text())
+            .then(html => document.getElementById("menu-placeholder").innerHTML = html);
+
         document.addEventListener('DOMContentLoaded', function() {
             // Function to fetch total items for a given type of product
             function fetchItemCount(pageUrl) {
                 return fetch(pageUrl)
                     .then(response => response.text())
                     .then(html => {
-                        // Parse the HTML to extract the total items (this is an example, adjust based on your structure)
+                        // Parse the HTML to extract the total items (adjust as needed based on your structure)
                         const parser = new DOMParser();
                         const doc = parser.parseFromString(html, 'text/html');
                         const itemCount = doc.querySelector('.item-count'); // Adjust to match your element that holds the item count
@@ -81,51 +91,5 @@
         });
     </script>
 
-    <script>
-        // Check if the data exists in localStorage and load it, otherwise fetch from GitHub
-        document.addEventListener('DOMContentLoaded', function() {
-            const inventoryData = JSON.parse(localStorage.getItem('inventoryData') || '[]');
-            if (inventoryData.length) {
-                // Use inventoryData from localStorage
-                displayData(inventoryData);
-            } else {
-                // Prompt for pin to retrieve data from GitHub
-                promptForPin();
-            }
-
-            function displayData(data) {
-                // Display data on the page (this could be totals or charts, etc.)
-                console.log(data); // You would replace this with actual code to update the UI
-            }
-
-            function promptForPin() {
-                const pin = prompt("Please enter your pin code:");
-                if (pin) {
-                    retrieveGitHubData(pin);
-                }
-            }
-
-            function retrieveGitHubData(pin) {
-                const githubKey = localStorage.getItem('githubKey');
-                if (!githubKey) {
-                    alert("No GitHub key found. Please set it first.");
-                    return;
-                }
-
-                // Assuming you're fetching from a GitHub JSON file or an API
-                fetch(`https://api.github.com/repos/your-username/your-repo/contents/data.json?ref=${githubKey}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        // Store data in localStorage for future use
-                        localStorage.setItem('inventoryData', JSON.stringify(data));
-                        displayData(data); // Show the data
-                    })
-                    .catch(error => {
-                        console.error('Error fetching data:', error);
-                    });
-            }
-        });
-    </script>
-      </main>
 </body>
 </html>
