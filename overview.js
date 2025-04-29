@@ -1,23 +1,25 @@
-// Load inventory.json when app starts (no auth needed)
+// Load inventory.json publicly when app starts
 async function loadInventory() {
   try {
-    const url = `https://raw.githubusercontent.com/aln-houts/Stock/main/data/inventory.json`; // Public raw URL
+    const url = `https://raw.githubusercontent.com/aln-houts/Stock/main/data/inventory.json`;
     const res = await fetch(url);
     if (!res.ok) {
       throw new Error('Failed to load inventory');
     }
     const data = await res.json();
-    localStorage.setItem('inventory', JSON.stringify(data)); // Save to localStorage if you want
+    localStorage.setItem('inventory', JSON.stringify(data)); 
     console.log('Inventory loaded:', data);
-    // You can now call your function to display items, e.g.:
     displayInventory(data); 
   } catch (error) {
     console.error('Error loading inventory:', error);
   }
 }
 
-// Immediately load the inventory
-loadInventory();
+// Load inventory immediately when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+  loadInventory();
+});
+
 
 function overviewApp() {
   return {
