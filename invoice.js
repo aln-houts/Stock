@@ -14,8 +14,8 @@ const pricingData = {
     { name: "Hoodie G185",              basePrice: 14.5 }
   ],
   designTiers: {
-    "Single Press": { "1-11": 6,   "12-24": 5,   "25-48": 4,   "49+": 3.5  },
-    "Double Side":   { "1-11": 7,   "12-24": 5.5, "25-48": 4.5, "49+": 3.75 }
+    "Single Press": { "1-11": 6,   "12-24": 5.5,   "25-48": 5,   "49+": 4.5  },
+    "Double Side":   { "1-11": 7,   "12-24": 6.5, "25-48": 6, "49+": 5.5 }
   },
   transferCosts: {
     "12x5.4":             0.75,
