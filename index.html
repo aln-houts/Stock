@@ -22,80 +22,16 @@
         .then(res => res.text())
         .then(html => document.getElementById("menu-placeholder").innerHTML = html);
     </script>
-	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Chart.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Chart.js library -->
   </header>
-<body>
-    <main class="container mt-4">
-        <!-- Existing Menu (loaded dynamically from menu.html) -->
-        <div id="menu-placeholder"></div>
 
-        <h1>Overview Page</h1>
-        
-<canvas id="inventoryChart"></canvas>
-<div id="item-counts">
-    <p>Total Tees: <span id="total-tees">Loading...</span></p>
-    <p>Total Tanks: <span id="total-tanks">Loading...</span></p>
-    <p>Total Hoodies: <span id="total-hoodies">Loading...</span></p>
-</div>
-	    
-<script>
-  // Wait for the DOM to fully load
-  document.addEventListener('DOMContentLoaded', function() {
-    // Retrieve the stored inventory data for Tees, Tanks, and Hoodies
-    const teesData = JSON.parse(localStorage.getItem("teesInventory")) || [];
-    const tanksData = JSON.parse(localStorage.getItem("tanksInventory")) || [];
-    const hoodiesData = JSON.parse(localStorage.getItem("hoodiesInventory")) || [];
+  <main class="container mt-4">
+    <h1>Overview Page</h1>
 
-    // Function to sum item counts from an inventory array
-    function getTotalItemCount(inventory) {
-      return inventory.reduce((total, item) => total + (item.count || 0), 0);
-    }
+    <!-- Item Distribution Chart -->
+    <h2>Item Distribution Chart</h2>
+    <canvas id="itemChart"></canvas> <!-- Chart container -->
 
-    // Get the total count for each product category
-    const teesCount = getTotalItemCount(teesData);
-    const tanksCount = getTotalItemCount(tanksData);
-    const hoodiesCount = getTotalItemCount(hoodiesData);
-
-    // Update the UI with the item counts
-    document.getElementById("total-tees").innerText = teesCount;
-    document.getElementById("total-tanks").innerText = tanksCount;
-    document.getElementById("total-hoodies").innerText = hoodiesCount;
-
-    // Check if data is available for the chart
-    if (teesCount > 0 || tanksCount > 0 || hoodiesCount > 0) {
-      // Once data is available, create the chart
-      const ctx = document.getElementById('inventoryChart').getContext('2d');
-      new Chart(ctx, {
-        type: 'bar', // You can change to 'pie', 'line', etc.
-        data: {
-          labels: ['Tees', 'Tanks', 'Hoodies'],
-          datasets: [{
-            label: 'Item Count',
-            data: [teesCount, tanksCount, hoodiesCount],
-            backgroundColor: ['#FF5733', '#33FF57', '#3357FF'],
-            borderColor: ['#FF5733', '#33FF57', '#3357FF'],
-            borderWidth: 1
-          }]
-        },
-        options: {
-          responsive: true,
-          scales: {
-            y: {
-              beginAtZero: true
-            }
-          }
-        }
-      });
-    } else {
-      // If no data is available, log a message or show an error
-      console.error('No inventory data available');
-    }
-  });
-</script>
-
-	    
-        <h2>Item Distribution Chart</h2>
-        <canvas id="itemChart"></canvas> <!-- Chart container -->
     <!-- GitHub Token Setup -->
     <div class="card mb-4">
       <div class="card-header">Token Setup</div>
@@ -126,126 +62,8 @@
     <div id="status" class="mb-3 fw-bold"></div>
   </main>
 
-  <!-- Token and Status JS -->
-  <script>
-    function saveToken() {
-      const token = document.getElementById("setupToken").value;
-      const pin = document.getElementById("setupPIN").value;
-      if (token && pin.length === 4) {
-        localStorage.setItem("ghToken", token);
-        localStorage.setItem("ghPin", pin);
-        alert("Token and PIN saved successfully.");
-        document.getElementById("setupToken").value = "";
-        document.getElementById("setupPIN").value = "";
-      } else {
-        alert("Please enter a token and a 4-digit PIN.");
-      }
-    }
-
-    function unlockToken() {
-      const enteredPin = document.getElementById("pinInput").value;
-      const storedPin = localStorage.getItem("ghPin");
-      const token = localStorage.getItem("ghToken");
-
-      if (enteredPin === storedPin && token) {
-        window.githubToken = token;
-        document.getElementById("saveBtn").disabled = false;
-        updateStatus("Token unlocked. Save button is active.", "success");
-      } else {
-        updateStatus("Incorrect PIN or token not set.", "danger");
-      }
-    }
-
-    function resetToken() {
-      localStorage.removeItem("ghToken");
-      localStorage.removeItem("ghPin");
-      alert("Credentials cleared.");
-      location.reload();
-    }
-
-    function updateStatus(msg, type = "success") {
-      const status = document.getElementById("status");
-      status.textContent = msg;
-      status.className = `mb-3 fw-bold text-${type}`;
-    }
-  </script>
-
-  <!-- Firebase & GitHub Sync JS -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
-    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyAEdQWx8mPqO48ZzvtM_Gimt-Hdw68Kmq4",
-      authDomain: "inventory-app-609ca.firebaseapp.com",
-      projectId: "inventory-app-609ca",
-      storageBucket: "inventory-app-609ca.firebasestorage.app",
-      messagingSenderId: "921704322566",
-      appId: "1:921704322566:web:4dab06516bd4bc3a18d587"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    const owner = "aln-houts";
-    const repo = "Stock";
-    const path = "data/inventory.json";
-    const branch = "main";
-
-    async function loadCategory(category) {
-      try {
-        const ref = doc(db, "inventory", category);
-        const snap = await getDoc(ref);
-        if (snap.exists()) {
-          localStorage.setItem(category + "Inventory", JSON.stringify(snap.data().data));
-          console.log(`Loaded ${category} from Firebase`);
-        }
-      } catch (e) {
-        console.error("Error loading", category, e);
-      }
-    }
-
-    // Sync button
-    document.getElementById("syncBtn").addEventListener("click", () => {
-      updateStatus("Syncing…", "info");
-      ["tees","tanks","hoodies","hats","bags","printtees","transfers"]
-        .forEach(loadCategory);
-    });
-
-    // Save button
-    document.getElementById("saveBtn").addEventListener("click", async () => {
-      if (!window.githubToken) {
-        updateStatus("Unlock with PIN first.", "danger");
-        return;
-      }
-      updateStatus("Saving…", "info");
-      try {
-        const content = localStorage.getItem("inventory");
-        const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
-        const res = await fetch(url, {
-          method: "PUT",
-          headers: {
-            Authorization: `token ${githubToken}`,
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            message: `Update inventory: ${new Date().toISOString()}`,
-            content: btoa(unescape(encodeURIComponent(content))),
-            branch
-          })
-        });
-        if (res.ok) {
-          updateStatus("Inventory saved to GitHub!", "success");
-        } else {
-          const err = await res.json();
-          updateStatus(`GitHub error: ${err.message}`, "danger");
-        }
-      } catch (e) {
-        updateStatus("Save failed.", "danger");
-        console.error(e);
-      }
-    });
-  </script>
+  <!-- Reference to the external JS file -->
+  <script src="github_inventory_sync.js"></script> <!-- External script for saving to GitHub -->
 
   <!-- shared scripts (Bootstrap + shared.js) -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
