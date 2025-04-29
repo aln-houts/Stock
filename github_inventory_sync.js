@@ -1,4 +1,3 @@
-
 document.getElementById("syncBtn").addEventListener("click", async () => {
   updateStatus("Syncing…", "info");
 
@@ -13,8 +12,10 @@ document.getElementById("syncBtn").addEventListener("click", async () => {
     transfers: JSON.parse(localStorage.getItem("transfersInventory")) || {}
   };
 
+  const branch = "main";  // Set the branch to 'main' (or adjust if different)
+
   try {
-    const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
+  const url = `https://api.github.com/repos/aln-houts/Stock/contents/data/inventory.json`;
     const res = await fetch(url, {
       method: "PUT",
       headers: {
@@ -23,8 +24,8 @@ document.getElementById("syncBtn").addEventListener("click", async () => {
       },
       body: JSON.stringify({
         message: `Sync inventory data: ${new Date().toISOString()}`,
-        content: btoa(unescape(encodeURIComponent(JSON.stringify(inventoryData)))),
-        branch
+        content: btoa(unescape(encodeURIComponent(JSON.stringify(inventoryData)))),  // Ensure proper encoding
+        branch: branch  // Ensure the branch is defined
       })
     });
 
@@ -58,6 +59,8 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
       transfers: JSON.parse(localStorage.getItem("transfersInventory")) || {}
     };
 
+    const branch = "main";  // Set the branch to 'main' (or adjust if different)
+
     const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
     const res = await fetch(url, {
       method: "PUT",
@@ -66,9 +69,9 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        message: `Update inventory: ${new Date().toISOString()}`,
-        content: btoa(unescape(encodeURIComponent(JSON.stringify(inventoryData)))),
-        branch
+        message: `Save inventory data: ${new Date().toISOString()}`,
+        content: btoa(unescape(encodeURIComponent(JSON.stringify(inventoryData)))),  // Ensure proper encoding
+        branch: branch  // Ensure the branch is defined
       })
     });
 
