@@ -32,48 +32,62 @@
         <h1>Overview Page</h1>
         
 <canvas id="inventoryChart"></canvas>
-
+<div id="item-counts">
+    <p>Total Tees: <span id="total-tees">Loading...</span></p>
+    <p>Total Tanks: <span id="total-tanks">Loading...</span></p>
+    <p>Total Hoodies: <span id="total-hoodies">Loading...</span></p>
+</div>
+	    
 <script>
-	// Retrieve the stored inventory data
-const teesData = JSON.parse(localStorage.getItem("teesInventory"));
-const tanksData = JSON.parse(localStorage.getItem("tanksInventory"));
-const hoodiesData = JSON.parse(localStorage.getItem("hoodiesInventory"));
+  // Wait for the DOM to fully load
+  document.addEventListener('DOMContentLoaded', function() {
+    // Retrieve the stored inventory data
+    const teesData = JSON.parse(localStorage.getItem("teesInventory"));
+    const tanksData = JSON.parse(localStorage.getItem("tanksInventory"));
+    const hoodiesData = JSON.parse(localStorage.getItem("hoodiesInventory"));
 
-// Process the data to extract item counts
-const teesCount = teesData ? teesData.length : 0;
-const tanksCount = tanksData ? tanksData.length : 0;
-const hoodiesCount = hoodiesData ? hoodiesData.length : 0;
+    // Process the data to extract item counts
+    const teesCount = teesData ? teesData.length : 0;
+    const tanksCount = tanksData ? tanksData.length : 0;
+    const hoodiesCount = hoodiesData ? hoodiesData.length : 0;
 
-// Update the UI with the item counts
-document.getElementById("total-tees").innerText = teesCount;
-document.getElementById("total-tanks").innerText = tanksCount;
-document.getElementById("total-hoodies").innerText = hoodiesCount;
-	
-  const ctx = document.getElementById('inventoryChart').getContext('2d');
-  new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: ['Tees', 'Tanks', 'Hoodies'],
-      datasets: [{
-        label: 'Item Count',
-        data: [teesCount, tanksCount, hoodiesCount],
-        backgroundColor: ['#FF5733', '#33FF57', '#3357FF'],
-        borderColor: ['#FF5733', '#33FF57', '#3357FF'],
-        borderWidth: 1
-      }]
-    },
-    options: {
-      responsive: true,
-      scales: {
-        y: {
-          beginAtZero: true
+    // Update the UI with the item counts
+    document.getElementById("total-tees").innerText = teesCount;
+    document.getElementById("total-tanks").innerText = tanksCount;
+    document.getElementById("total-hoodies").innerText = hoodiesCount;
+
+    // Check if data is available for the chart
+    if (teesCount > 0 || tanksCount > 0 || hoodiesCount > 0) {
+      // Once data is available, create the chart
+      const ctx = document.getElementById('inventoryChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'bar', // You can change to 'pie', 'line', etc.
+        data: {
+          labels: ['Tees', 'Tanks', 'Hoodies'],
+          datasets: [{
+            label: 'Item Count',
+            data: [teesCount, tanksCount, hoodiesCount],
+            backgroundColor: ['#FF5733', '#33FF57', '#3357FF'],
+            borderColor: ['#FF5733', '#33FF57', '#3357FF'],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
         }
-      }
+      });
+    } else {
+      // If data is missing, show a warning or message
+      console.error('Missing data for one or more categories');
     }
   });
 </script>
-
-
+	    
         <h2>Item Distribution Chart</h2>
         <canvas id="itemChart"></canvas> <!-- Chart container -->
     <!-- GitHub Token Setup -->
