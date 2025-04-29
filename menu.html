@@ -3,8 +3,13 @@
   <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu">
     <span class="navbar-toggler-icon"></span>
   </button>
-  <a class="navbar-brand d-flex align-items-center" href="#" 
-     hx-get="overview.html" hx-target="#main-content" hx-push-url="true">
+  <a class="navbar-brand d-flex align-items-center"
+     href="overview.html"
+     hx-get="overview.html #main-content"
+     hx-target="#main-content"
+     hx-swap="innerHTML"
+     hx-push-url="true"
+     data-bs-dismiss="offcanvas">
     <img src="logo.png" alt="Logo" style="height: 90px; margin-right: 8px;">
   </a>
 </nav>
@@ -17,56 +22,112 @@
   <div class="offcanvas-body">
     <ul class="nav flex-column">
       <li class="nav-item">
-        <a class="nav-link text-white" 
-           hx-get="item.html?type=tees" hx-target="#main-content" hx-push-url="true">
+        <a class="nav-link text-white"
+           href="overview.html"
+           hx-get="overview.html #main-content"
+           hx-target="#main-content"
+           hx-swap="innerHTML"
+           hx-push-url="true"
+           data-bs-dismiss="offcanvas">
+          Inventory Overview
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link text-white"
+           href="item.html?type=tees"
+           hx-get="item.html?type=tees #main-content"
+           hx-target="#main-content"
+           hx-swap="innerHTML"
+           hx-push-url="true"
+           data-bs-dismiss="offcanvas">
           Blank Tees
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link text-white" 
-           hx-get="item.html?type=tanks" hx-target="#main-content" hx-push-url="true">
+        <a class="nav-link text-white"
+           href="item.html?type=tanks"
+           hx-get="item.html?type=tanks #main-content"
+           hx-target="#main-content"
+           hx-swap="innerHTML"
+           hx-push-url="true"
+           data-bs-dismiss="offcanvas">
           Tanks
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link text-white" 
-           hx-get="item.html?type=hoodies" hx-target="#main-content" hx-push-url="true">
+        <a class="nav-link text-white"
+           href="item.html?type=hoodies"
+           hx-get="item.html?type=hoodies #main-content"
+           hx-target="#main-content"
+           hx-swap="innerHTML"
+           hx-push-url="true"
+           data-bs-dismiss="offcanvas">
           Hoodies
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link text-white" 
-           hx-get="item.html?type=hats" hx-target="#main-content" hx-push-url="true">
+        <a class="nav-link text-white"
+           href="item.html?type=hats"
+           hx-get="item.html?type=hats #main-content"
+           hx-target="#main-content"
+           hx-swap="innerHTML"
+           hx-push-url="true"
+           data-bs-dismiss="offcanvas">
           Hats
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link text-white" 
-           hx-get="item.html?type=bags" hx-target="#main-content" hx-push-url="true">
+        <a class="nav-link text-white"
+           href="item.html?type=bags"
+           hx-get="item.html?type=bags #main-content"
+           hx-target="#main-content"
+           hx-swap="innerHTML"
+           hx-push-url="true"
+           data-bs-dismiss="offcanvas">
           Bags
         </a>
       </li>
       <li class="nav-item">
         <a class="nav-link text-white"
-           hx-get="item.html?type=print-tees" hx-target="#main-content" hx-push-url="true">
+           href="item.html?type=print-tees"
+           hx-get="item.html?type=print-tees #main-content"
+           hx-target="#main-content"
+           hx-swap="innerHTML"
+           hx-push-url="true"
+           data-bs-dismiss="offcanvas">
           Print Tees
         </a>
       </li>
       <li class="nav-item">
         <a class="nav-link text-white"
-           hx-get="transfers.html" hx-target="#main-content" hx-push-url="true">
+           href="transfers.html"
+           hx-get="transfers.html #main-content"
+           hx-target="#main-content"
+           hx-swap="innerHTML"
+           hx-push-url="true"
+           data-bs-dismiss="offcanvas">
           Transfers
         </a>
       </li>
       <li class="nav-item">
         <a class="nav-link text-white"
-           hx-get="create-invoice.html" hx-target="#main-content" hx-push-url="true">
+           href="create-invoice.html"
+           hx-get="create-invoice.html #main-content"
+           hx-target="#main-content"
+           hx-swap="innerHTML"
+           hx-push-url="true"
+           data-bs-dismiss="offcanvas">
           Create Invoice
         </a>
       </li>
       <li class="nav-item">
         <a class="nav-link text-white"
-           hx-get="invoices.html" hx-target="#main-content" hx-push-url="true">
+           href="invoices.html"
+           hx-get="invoices.html #main-content"
+           hx-target="#main-content"
+           hx-swap="innerHTML"
+           hx-push-url="true"
+           data-bs-dismiss="offcanvas">
           Saved Invoices
         </a>
       </li>
