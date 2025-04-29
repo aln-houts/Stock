@@ -1,50 +1,115 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Stock App</title>
 
-  <!-- shared head -->
+<head>
+  <title>Blank Tees</title>
   <div id="head-placeholder"></div>
   <script>
-    fetch("head.html")
-      .then(r => r.text())
-      .then(html => document.getElementById("head-placeholder").innerHTML = html);
+    fetch("head.html").then(res => res.text()).then(html => document.getElementById("head-placeholder").innerHTML = html);
   </script>
 </head>
+
 <body>
-  <!-- shared menu -->
   <header>
     <div id="menu-placeholder"></div>
     <script>
-      fetch("menu.html")
-        .then(r => r.text())
-        .then(html => document.getElementById("menu-placeholder").innerHTML = html);
+      fetch("menu.html").then(res => res.text()).then(html => document.getElementById("menu-placeholder").innerHTML = html);
     </script>
   </header>
 
-  <!-- this is where all pages swap in -->
-  <div id="main-content"
-       hx-get="overview.html #main-content"
-       hx-trigger="load"
-       hx-swap="innerHTML"
-       hx-push-url="true">
-    <!-- fallback content if JS disabled -->
-    <noscript>
-      <p>Please enable JavaScript to load the app.</p>
-    </noscript>
-  </div>
+  <main class="container mt-4">
+    <section id="form-section">
+      <h2>Add Blank Tee</h2>
+      <div id="form-placeholder"></div>
+      <script>
+        fetch("form.html").then(res => res.text()).then(html => {
+          const formPlaceholder = document.getElementById("form-placeholder");
+          formPlaceholder.innerHTML = html;
+          const form = formPlaceholder.querySelector("form");
+          form.id = "addForm";
+          const select = formPlaceholder.querySelector("select");
+          select.id = "size";
+          const inputStyle = formPlaceholder.querySelector("#style");
+          inputStyle.setAttribute("list","styleSuggestions");
+          const inputColor = formPlaceholder.querySelector("#color");
+          inputColor.setAttribute("list","colorSuggestions");
+          const datalistStyle = document.createElement("datalist");
+          datalistStyle.id = "styleSuggestions";
+          formPlaceholder.appendChild(datalistStyle);
+          const datalistColor = document.createElement("datalist");
+          datalistColor.id = "colorSuggestions";
+          formPlaceholder.appendChild(datalistColor);
+          
+        })
+      </script>
+    </section>
 
-  <!-- scripts: Bootstrap, HTMX, Alpine, shared.js -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
-  <script src="https://unpkg.com/htmx.org@1.8.5" defer></script>
-  <script src="https://unpkg.com/alpinejs@3.10.3/dist/cdn.min.js" defer></script>
-  <!-- at the bottom of index.html -->
-<script src="shared.js" defer></script>
-<script src="item.js"   defer></script>
-<script src="invoice.js" defer></script>
-<script src="overview.js" defer></script>
+    <script>
+      const sizeSelect = document.getElementById("size");
+      ["XS", "S", "M", "L", "XL", "XX", "3X", "4X", "5X"].forEach(size => {
+        const option = document.createElement("option");
+        option.value = size;
+        option.text = size;
+        sizeSelect.appendChild(option);
+      });
+    </script>
+
+    <hr />
+
+    <section id="display-section">
+      <h2>Inventory Display</h2>
+      <div id="inventoryDisplay" class="table-responsive"></div>
+    </section>
+  </main>
+
+  <div id="scripts-placeholder"></div>
+  <script>
+    fetch("scripts.html").then(res => res.text()).then(html => document.getElementById("scripts-placeholder").innerHTML = html);
+  </script>
+  <script src="app.js"></script>
+</body>
+
+</html>
+            <option>XS</option>
+            <option>S</option>
+            <option>M</option>
+            <option>L</option>
+            <option>XL</option>
+            <option>XX</option>
+            <option>3X</option>
+            <option>4X</option>
+            <option>5X</option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label for="quantity" class="form-label">Quantity</label>
+          <input type="number" class="form-control" id="quantity" required />
+        </div>
+        <div class="col-12">
+          <button type="submit" class="btn btn-primary">Add to Inventory</button>
+        </div>
+      </form>
+    </section>
+
+    <hr />
+
+    <section id="display-section">
+      <h2>Inventory Display</h2>
+      <div id="inventoryDisplay" class="table-responsive"></div>
+    </section>
+
+  </main>
+
+  <!-- Scripts after body -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    fetch("menu.html")
+      .then(res => res.text())
+      .then(html => document.getElementById("menu-placeholder").innerHTML = html);
+  </script>
+
+  <script src="app.js"></script>
 
 </body>
 </html>

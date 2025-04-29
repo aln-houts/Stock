@@ -1,4 +1,30 @@
-<main id="main-content" class="container-fluid p-4">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Inventory Overview</title>
+
+  <!-- shared head (meta, CSS, cache-control) -->
+  <div id="head-placeholder"></div>
+  <script>
+    fetch("head.html")
+      .then(res => res.text())
+      .then(html => document.getElementById("head-placeholder").innerHTML = html);
+  </script>
+</head>
+<body>
+  <!-- shared navbar -->
+  <header>
+    <div id="menu-placeholder"></div>
+    <script>
+      fetch("menu.html")
+        .then(res => res.text())
+        .then(html => document.getElementById("menu-placeholder").innerHTML = html);
+    </script>
+  </header>
+
+  <main>
     <h1 class="mb-4">Inventory Overview</h1>
 
     <!-- GitHub Token Setup -->
@@ -31,3 +57,129 @@
     <div id="status" class="mb-3 fw-bold"></div>
   </main>
 
+  <!-- Token and Status JS -->
+  <script>
+    function saveToken() {
+      const token = document.getElementById("setupToken").value;
+      const pin = document.getElementById("setupPIN").value;
+      if (token && pin.length === 4) {
+        localStorage.setItem("ghToken", token);
+        localStorage.setItem("ghPin", pin);
+        alert("Token and PIN saved successfully.");
+        document.getElementById("setupToken").value = "";
+        document.getElementById("setupPIN").value = "";
+      } else {
+        alert("Please enter a token and a 4-digit PIN.");
+      }
+    }
+
+    function unlockToken() {
+      const enteredPin = document.getElementById("pinInput").value;
+      const storedPin = localStorage.getItem("ghPin");
+      const token = localStorage.getItem("ghToken");
+
+      if (enteredPin === storedPin && token) {
+        window.githubToken = token;
+        document.getElementById("saveBtn").disabled = false;
+        updateStatus("Token unlocked. Save button is active.", "success");
+      } else {
+        updateStatus("Incorrect PIN or token not set.", "danger");
+      }
+    }
+
+    function resetToken() {
+      localStorage.removeItem("ghToken");
+      localStorage.removeItem("ghPin");
+      alert("Credentials cleared.");
+      location.reload();
+    }
+
+    function updateStatus(msg, type = "success") {
+      const status = document.getElementById("status");
+      status.textContent = msg;
+      status.className = `mb-3 fw-bold text-${type}`;
+    }
+  </script>
+
+  <!-- Firebase & GitHub Sync JS -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAEdQWx8mPqO48ZzvtM_Gimt-Hdw68Kmq4",
+      authDomain: "inventory-app-609ca.firebaseapp.com",
+      projectId: "inventory-app-609ca",
+      storageBucket: "inventory-app-609ca.firebasestorage.app",
+      messagingSenderId: "921704322566",
+      appId: "1:921704322566:web:4dab06516bd4bc3a18d587"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const owner = "aln-houts";
+    const repo = "Stock";
+    const path = "data/inventory.json";
+    const branch = "main";
+
+    async function loadCategory(category) {
+      try {
+        const ref = doc(db, "inventory", category);
+        const snap = await getDoc(ref);
+        if (snap.exists()) {
+          localStorage.setItem(category + "Inventory", JSON.stringify(snap.data().data));
+          console.log(`Loaded ${category} from Firebase`);
+        }
+      } catch (e) {
+        console.error("Error loading", category, e);
+      }
+    }
+
+    // Sync button
+    document.getElementById("syncBtn").addEventListener("click", () => {
+      updateStatus("Syncing…", "info");
+      ["tees","tanks","hoodies","hats","bags","printtees","transfers"]
+        .forEach(loadCategory);
+    });
+
+    // Save button
+    document.getElementById("saveBtn").addEventListener("click", async () => {
+      if (!window.githubToken) {
+        updateStatus("Unlock with PIN first.", "danger");
+        return;
+      }
+      updateStatus("Saving…", "info");
+      try {
+        const content = localStorage.getItem("inventory");
+        const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
+        const res = await fetch(url, {
+          method: "PUT",
+          headers: {
+            Authorization: `token ${githubToken}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            message: `Update inventory: ${new Date().toISOString()}`,
+            content: btoa(unescape(encodeURIComponent(content))),
+            branch
+          })
+        });
+        if (res.ok) {
+          updateStatus("Inventory saved to GitHub!", "success");
+        } else {
+          const err = await res.json();
+          updateStatus(`GitHub error: ${err.message}`, "danger");
+        }
+      } catch (e) {
+        updateStatus("Save failed.", "danger");
+        console.error(e);
+      }
+    });
+  </script>
+
+  <!-- shared scripts (Bootstrap + shared.js) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="shared.js"></script>
+</body>
+</html>

@@ -1,5 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Saved Invoices</title>
+  <div id="head-placeholder"></div>
+  <script>
+    fetch("head.html").then(r=>r.text()).then(html=>document.getElementById("head-placeholder").innerHTML=html);
+  </script>
+</head>
+<body>
+  <header>
+    <div id="menu-placeholder"></div>
+    <script>
+      fetch("menu.html").then(r=>r.text()).then(html=>document.getElementById("menu-placeholder").innerHTML=html);
+    </script>
+  </header>
 
-<main id="main-content" class="container-fluid p-4">
+  <main class="p-4">
     <h1>Saved Invoices</h1>
     <table class="table">
       <thead>
@@ -10,4 +26,24 @@
       <tbody id="invoice-list"></tbody>
     </table>
   </main>
-  
+
+  <script>
+    const invoices = JSON.parse(localStorage.getItem('invoices')||'[]');
+    const tbody = document.getElementById('invoice-list');
+    invoices.forEach(inv => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${inv.invoiceNumber}</td>
+        <td>${inv.invoiceDate}</td>
+        <td>${inv.customer}</td>
+        <td>$${inv.subtotal.toFixed(2)}</td>
+        <td>
+          <a href="create-invoice.html?view=${inv.invoiceNumber}" class="btn btn-sm btn-primary">
+            View
+          </a>
+        </td>`;
+      tbody.append(tr);
+    });
+  </script>
+</body>
+</html>
