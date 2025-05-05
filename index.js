@@ -56,6 +56,30 @@ async function loadSection(type) {
     container.innerHTML = '<p class="text-danger">Error loading section.</p>';
   }
 }
+/**
+ * Load an HTML partial into the given element ID.
+ */
+async function loadPartial(url, elementId) {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`Failed to load ${url}: ${res.status}`);
+    document.getElementById(elementId).innerHTML = await res.text();
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  // 1) Load shared UI parts
+  loadPartial('head.html', 'head-placeholder');
+  loadPartial('menu.html', 'menu-placeholder');
+
+  // 2) Seed inventory into localStorage (existing code)…
+  //    fetch('data/inventory.json')…
+
+  // 3) Finally, display the requested section
+  loadSection(type);
+});
 
       // Update page title
       const pageTitle = document.getElementById('page-title');
