@@ -25,13 +25,22 @@ const sectionRegistry = {
       const html = await res.text();
       container.innerHTML = html;
   
-      // Re-run any inline scripts
-      const scripts = container.querySelectorAll("script");
-      scripts.forEach(oldScript => {
-        const newScript = document.createElement("script");
-        newScript.text = oldScript.text;
-        oldScript.replaceWith(newScript);
-      });
+// Re-run both inline and external scripts
+const oldScripts = container.querySelectorAll("script");
+oldScripts.forEach(old => {
+  const newScript = document.createElement("script");
+  // if it has a src attribute, carry that over
+  if (old.src) {
+    newScript.src = old.src;
+    // ensure it executes after loading
+    newScript.onload = () => {};
+  } else {
+    // otherwise copy inline text
+    newScript.textContent = old.textContent;
+  }
+  // replace the old with the new one
+  old.parentNode.replaceChild(newScript, old);
+});
   
       // Update page title
       const pageTitle = document.getElementById('page-title');
