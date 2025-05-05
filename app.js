@@ -1,4 +1,33 @@
-import { saveSuggestion, loadSuggestions, sizes } from './shared.js';
+// ——— Shared functions & data (inlined from shared.js) ———
+
+// List of sizes for inventory tables
+const sizes = ["XS","S","M","L","XL","XXL","3X"];
+
+// Save a suggestion into localStorage under `storageKey`
+function saveSuggestion(storageKey, suggestion) {
+  const list = JSON.parse(localStorage.getItem(storageKey)) || [];
+  const val = suggestion.trim();
+  if (val && !list.includes(val)) {
+    list.push(val);
+    localStorage.setItem(storageKey, JSON.stringify(list));
+  }
+}
+
+// Populate a <datalist> (by its ID) with saved suggestions
+function loadSuggestions(storageKey, datalistId) {
+  const list = JSON.parse(localStorage.getItem(storageKey)) || [];
+  const dl = document.getElementById(datalistId);
+  if (!dl) return;
+  dl.innerHTML = list.map(s => `<option value="${s}">`).join("");
+}
+
+// — end of inlined shared code —
+
+// …the rest of your existing app.js follows…
+let inventory = JSON.parse(localStorage.getItem("inventory")) || {};
+const suggestionsCache = {};
+
+// etc.
 
 let inventory = JSON.parse(localStorage.getItem("inventory")) || {};
 
