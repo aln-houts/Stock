@@ -15,33 +15,48 @@ const sectionRegistry = {
      };
   
   
-  async function loadSection(type) {
-    const section = sectionRegistry[type] || sectionRegistry['tees'];
-    const container = document.getElementById('section-placeholder');
-  
-    try {
-      const res = await fetch(section.file);
-      if (!res.ok) throw new Error(`Failed to load ${section.file}`);
-      const html = await res.text();
-      container.innerHTML = html;
-  
-// Re-run both inline and external scripts
-const oldScripts = container.querySelectorAll("script");
-oldScripts.forEach(old => {
-  const newScript = document.createElement("script");
-  // if it has a src attribute, carry that over
-  if (old.src) {
-    newScript.src = old.src;
-    // ensure it executes after loading
-    newScript.onload = () => {};
-  } else {
-    // otherwise copy inline text
-    newScript.textContent = old.textContent;
+// index.js
+
+async function loadSection(type) {
+  const section = sectionRegistry[type] || sectionRegistry['tees'];
+  const container = document.getElementById('section-placeholder');
+
+  try {
+    // 1) Resolve & fetch
+    const sectionUrl = new URL(section.file, document.baseURI).href;
+    const res = await fetch(sectionUrl);
+    if (!res.ok) throw new Error(`Failed to load ${section.file}: ${res.status}`);
+    const html = await res.text();
+
+    // 2) Inject the HTML
+    container.innerHTML = html;
+
+    // 3) Re‑run both inline and external scripts
+    const oldScripts = container.querySelectorAll('script');
+    oldScripts.forEach(old => {
+      const newScript = document.createElement('script');
+      if (old.src) {
+        newScript.src = old.src;
+        newScript.onload = () => {};  // optional hook
+      } else {
+        newScript.textContent = old.textContent;
+      }
+      old.parentNode.replaceChild(newScript, old);
+    });
+
+    // 4) Update the page title element, if present
+    const pageTitle = document.getElementById('page-title');
+    if (pageTitle) pageTitle.textContent = section.title;
+
+    // 5) Run the section’s initializer
+    section.init && section.init();
+
+  } catch (err) {
+    console.error('Failed to load section:', err);
+    container.innerHTML = '<p class="text-danger">Error loading section.</p>';
   }
-  // replace the old with the new one
-  old.parentNode.replaceChild(newScript, old);
-});
-  
+}
+
       // Update page title
       const pageTitle = document.getElementById('page-title');
       if (pageTitle) pageTitle.textContent = section.title;
