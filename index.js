@@ -111,6 +111,4 @@ const sectionRegistry = {
                   || 'tees';
       loadSection(raw.toLowerCase());
     });
-  });
-  
   
