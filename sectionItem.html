@@ -1,0 +1,38 @@
+
+<section id="items-section" class="container mt-4">
+  <h2 id="form-title" class="mb-4">Add Item</h2>
+  <!-- form.html -->
+<form id="addForm" class="row g-3">
+  <div class="col-md-4" data-field="style">
+    <label for="style" class="form-label">Style</label>
+    <input type="text" class="form-control" id="style" list="styleSuggestions" required />
+    <datalist id="styleSuggestions"></datalist>
+  </div>
+
+  <div class="col-md-4" data-field="color">
+    <label for="color" class="form-label">Color</label>
+    <input type="text" class="form-control" id="color" list="colorSuggestions" required />
+    <datalist id="colorSuggestions"></datalist>
+  </div>
+
+  <div class="col-md-4" data-field="size">
+    <label for="size" class="form-label">Size</label>
+    <select id="size" class="form-select"></select>
+  </div>
+
+  <div class="col-md-4" data-field="quantity">
+    <label for="quantity" class="form-label">Quantity</label>
+    <input type="number" class="form-control" id="quantity" required />
+  </div>
+
+  <div class="col-12" data-field="submit">
+    <button type="submit" class="btn btn-primary">Add to Inventory</button>
+  </div>
+</form>
+
+  <hr class="my-4">
+  <div id="itemDisplay" class="table-responsive">
+    <!-- Display content goes here -->
+  </div>
+  <script src="scripts/setupItem.js"></script>
+</section>
