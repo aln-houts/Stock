@@ -25,7 +25,7 @@ async function loadSection(type) {
     // 1) Resolve & fetch
     const sectionUrl = new URL(section.file, document.baseURI).href;
     const res = await fetch(sectionUrl);
-    if (!res.ok) throw new Error(`Failed to load ${section.file}: ${res.status}`);
+    if (!res.ok) throw new Error(Failed to load ${section.file}: ${res.status});
     const html = await res.text();
 
     // 2) Inject the HTML
@@ -62,7 +62,7 @@ async function loadSection(type) {
 async function loadPartial(url, elementId) {
   try {
     const res = await fetch(url);
-    if (!res.ok) throw new Error(`Failed to load ${url}: ${res.status}`);
+    if (!res.ok) throw new Error(Failed to load ${url}: ${res.status});
     document.getElementById(elementId).innerHTML = await res.text();
   } catch (err) {
     console.error(err);
@@ -102,14 +102,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // 1) Fetch the master inventory JSON and seed localStorage
     try {
       const res = await fetch('data/inventory.json');
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) throw new Error(HTTP ${res.status});
       const json = await res.json();
       Object.entries(json).forEach(([section, items]) => {
         // map "print" → "printtees" to match your sectionRegistry key
         const keyName = section.toLowerCase() === 'print'
           ? 'printtees'
           : section.toLowerCase();
-        const storageKey = `${keyName}Inventory`;
+        const storageKey = ${keyName}Inventory;
         localStorage.setItem(storageKey, JSON.stringify(items));
       });
     } catch (err) {
