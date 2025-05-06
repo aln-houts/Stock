@@ -1,162 +1,113 @@
-// index.js (cleaned and modernized)
+// index.js – Refactored with syntax fixes and unified DOMContentLoaded
 
+// 1) Section registry: maps URL params to section files and init functions
 const sectionRegistry = {
-    tees:       {file: 'sections/sectionItem.html', title: 'Tees', init: () => {if (typeof setupItems === 'function') setupItems();} },
-    hoodies:    { file: 'sections/sectionItem.html', title: 'Hoodies', init: () => { if (typeof setupItems === 'function') setupItems(); } },
-    tanks:      { file: 'sections/sectionItem.html', title: 'Tanks', init: () => { if (typeof setupItems === 'function') setupItems(); } },
-    bags:       { file: 'sections/sectionItem.html', title: 'Bags', init: () => { if (typeof setupItems === 'function') setupItems(); } },
-    raglan:     { file: 'sections/sectionItem.html', title: 'Raglan', init: () => { if (typeof setupItems === 'function') setupItems(); } },
-    longsleeve: { file: 'sections/sectionItem.html', title: 'Long Sleeve', init: () => { if (typeof setupItems === 'function') setupItems(); } },
-    transfers:  { file: 'sections/sectionItem.html', title: 'Transfers', init: () => { if (typeof setupItems === 'function') setupItems(); } },
-    printtees:  { file: 'sections/sectionItem.html', title: 'Print Tees', init: () => { if (typeof setupItems === 'function') setupItems(); } },
-    hats:       { file: 'sections/sectionItem.html', title: 'Hats', init: () => { if (typeof setupItems === 'function') setupItems(); } },
-    invoice:    { file: 'sections/sectionInvoice.html', title: 'Invoice',  init: () => {if (typeof setupInvoice === 'function') setupInvoice(); }},
-    save:       { file: 'sections/sectionSave.html', title: 'Save to GitHub',init: () => { if (typeof setupSave === 'function') setupSave(); }}, 
-     };
-  
-  
-// index.js
+  tees:       { file: 'sections/sectionItem.html',    title: 'Tees',        init: () => typeof setupItems === 'function' && setupItems() },
+  hoodies:    { file: 'sections/sectionItem.html',    title: 'Hoodies',     init: () => typeof setupItems === 'function' && setupItems() },
+  tanks:      { file: 'sections/sectionItem.html',    title: 'Tanks',       init: () => typeof setupItems === 'function' && setupItems() },
+  bags:       { file: 'sections/sectionItem.html',    title: 'Bags',        init: () => typeof setupItems === 'function' && setupItems() },
+  raglan:     { file: 'sections/sectionItem.html',    title: 'Raglan',      init: () => typeof setupItems === 'function' && setupItems() },
+  longsleeve: { file: 'sections/sectionItem.html',    title: 'Long Sleeve', init: () => typeof setupItems === 'function' && setupItems() },
+  transfers:  { file: 'sections/sectionItem.html',    title: 'Transfers',   init: () => typeof setupItems === 'function' && setupItems() },
+  printtees:  { file: 'sections/sectionItem.html',    title: 'Print Tees',  init: () => typeof setupItems === 'function' && setupItems() },
+  hats:       { file: 'sections/sectionItem.html',    title: 'Hats',        init: () => typeof setupItems === 'function' && setupItems() },
+  invoice:    { file: 'sections/sectionInvoice.html', title: 'Invoice',     init: () => typeof setupInvoice === 'function' && setupInvoice() },
+  save:       { file: 'sections/sectionSave.html',    title: 'Save to GitHub', init: () => typeof setupSave === 'function' && setupSave() }
+};
 
-async function loadSection(type) {
-  const section = sectionRegistry[type] || sectionRegistry['tees'];
+// 2) Determine desired section key from URL
+const params = new URLSearchParams(window.location.search);
+const rawType = params.get('type') || params.get('page') || window.location.hash.slice(1) || 'tees';
+const type = rawType.toLowerCase();
+
+// 3) Function: fetch & inject a section HTML, re-run scripts, update title, init
+async function loadSection(key) {
+  const section = sectionRegistry[key] || sectionRegistry['tees'];
   const container = document.getElementById('section-placeholder');
-
   try {
-    // 1) Resolve & fetch
+    // Resolve URL against baseURI
     const sectionUrl = new URL(section.file, document.baseURI).href;
     const res = await fetch(sectionUrl);
-    if (!res.ok) throw new Error(Failed to load ${section.file}: ${res.status});
-    const html = await res.text();
+    if (!res.ok) throw new Error(`Failed to load ${section.file}: ${res.status}`);
 
-    // 2) Inject the HTML
-    container.innerHTML = html;
+    container.innerHTML = await res.text();
 
-    // 3) Re‑run both inline and external scripts
-    const oldScripts = container.querySelectorAll('script');
-    oldScripts.forEach(old => {
-      const newScript = document.createElement('script');
+    // Re‑execute both external src and inline scripts
+    container.querySelectorAll('script').forEach(old => {
+      const ne = document.createElement('script');
       if (old.src) {
-        newScript.src = old.src;
-        newScript.onload = () => {};  // optional hook
+        ne.src = old.src;
       } else {
-        newScript.textContent = old.textContent;
+        ne.textContent = old.textContent;
       }
-      old.parentNode.replaceChild(newScript, old);
+      old.replaceWith(ne);
     });
 
-    // 4) Update the page title element, if present
+    // Update page title
     const pageTitle = document.getElementById('page-title');
     if (pageTitle) pageTitle.textContent = section.title;
 
-    // 5) Run the section’s initializer
-    section.init && section.init();
-
+    // Run section initializer
+    section.init();
   } catch (err) {
-    console.error('Failed to load section:', err);
+    console.error('loadSection error', err);
     container.innerHTML = '<p class="text-danger">Error loading section.</p>';
   }
 }
-/**
- * Load an HTML partial into the given element ID.
- */
+
+// 4) Helper: load an HTML partial into an element
 async function loadPartial(url, elementId) {
   try {
     const res = await fetch(url);
-    if (!res.ok) throw new Error(Failed to load ${url}: ${res.status});
+    if (!res.ok) throw new Error(`Failed to load ${url}: ${res.status}`);
     document.getElementById(elementId).innerHTML = await res.text();
   } catch (err) {
-    console.error(err);
+    console.error('loadPartial error', err);
   }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  // 1) Load shared UI parts
-  loadPartial('head.html', 'head-placeholder');
-  loadPartial('menu.html', 'menu-placeholder');
+// 5) On DOM ready: load shared UI, seed inventory, load section, setup nav handlers
 
-  // 2) Seed inventory into localStorage (existing code)…
-  //    fetch('data/inventory.json')…
+document.addEventListener('DOMContentLoaded', async () => {
+  // Load header & menu partials
+  await loadPartial('head.html', 'head-placeholder');
+  await loadPartial('menu.html', 'menu-placeholder');
 
-  // 3) Finally, display the requested section
-  loadSection(type);
-});
-
-      // Update page title
-      const pageTitle = document.getElementById('page-title');
-      if (pageTitle) pageTitle.textContent = section.title;
-  
-      // Run section-specific init
-      section.init();
-    } catch (err) {
-      console.error('Failed to load section:', err);
-      container.innerHTML = '<p class="text-danger">Error loading section.</p>';
-    }
-  }
-  
-  const params = new URLSearchParams(window.location.search);
-  const rawType = params.get('type') || params.get('page') || window.location.hash.slice(1) || 'tees';
-  const type = rawType.toLowerCase();
-  
-  
-  document.addEventListener('DOMContentLoaded', async () => {
-    // 1) Fetch the master inventory JSON and seed localStorage
-    try {
-      const res = await fetch('data/inventory.json');
-      if (!res.ok) throw new Error(HTTP ${res.status});
-      const json = await res.json();
-      Object.entries(json).forEach(([section, items]) => {
-        // map "print" → "printtees" to match your sectionRegistry key
-        const keyName = section.toLowerCase() === 'print'
-          ? 'printtees'
-          : section.toLowerCase();
-        const storageKey = ${keyName}Inventory;
-        localStorage.setItem(storageKey, JSON.stringify(items));
-      });
-    } catch (err) {
-      console.error('Error loading inventory.json:', err);
-    }
-  
-    // 2) Finally, load whichever section the URL requested
-    loadSection(type);
-  });
-  
-  
-    // 2) Intercept clicks on your offcanvas menu links
-    document
-      .getElementById('menu-placeholder')
-      .addEventListener('click', (e) => {
-        const link = e.target.closest('a.nav-link');
-        if (!link) return;             // only care about nav-links
-        e.preventDefault();            // don’t do a full reload
-        const href = link.getAttribute('href');
-        const url  = new URL(href, window.location.origin);
-  
-        // figure out which key in sectionRegistry we want
-        const raw   = url.searchParams.get('type')
-                     || url.searchParams.get('page')
-                     || url.hash.slice(1)
-                     || 'tees';
-        const newType = raw.toLowerCase();
-  
-        // update the browser’s URL bar (history)
-        window.history.pushState({}, '', href);
-  
-        // load that section in-place
-        loadSection(newType);
-  
-        // and then close the offcanvas menu
-        const offcanvasEl = document.getElementById('sidebarMenu');
-        const offcanvas   = bootstrap.Offcanvas.getOrCreateInstance(offcanvasEl);
-        offcanvas.hide();
-      });
-  
-    // 3) Support back/forward navigation
-    window.addEventListener('popstate', () => {
-      const params = new URLSearchParams(window.location.search);
-      const raw    = params.get('type')
-                  || params.get('page')
-                  || window.location.hash.slice(1)
-                  || 'tees';
-      loadSection(raw.toLowerCase());
+  // Seed inventory JSON into localStorage
+  try {
+    const res = await fetch('data/inventory.json');
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    Object.entries(data).forEach(([sectionKey, items]) => {
+      const keyName = sectionKey.toLowerCase() === 'print' ? 'printtees' : sectionKey.toLowerCase();
+      const storageKey = `${keyName}Inventory`;
+      localStorage.setItem(storageKey, JSON.stringify(items));
     });
-  
+  } catch (err) {
+    console.error('Error loading inventory.json', err);
+  }
+
+  // Load the initial section
+  await loadSection(type);
+
+  // Intercept offcanvas menu clicks
+  document.getElementById('menu-placeholder').addEventListener('click', e => {
+    const link = e.target.closest('a.nav-link');
+    if (!link) return;
+    e.preventDefault();
+    const href = link.getAttribute('href');
+    const url = new URL(href, window.location.origin);
+    const newRaw = url.searchParams.get('type') || url.searchParams.get('page') || url.hash.slice(1) || 'tees';
+    const newType = newRaw.toLowerCase();
+    window.history.pushState({}, '', href);
+    loadSection(newType);
+    bootstrap.Offcanvas.getOrCreateInstance(document.getElementById('sidebarMenu')).hide();
+  });
+
+  // Handle back/forward
+  window.addEventListener('popstate', () => {
+    const p = new URLSearchParams(window.location.search);
+    const raw = p.get('type') || p.get('page') || window.location.hash.slice(1) || 'tees';
+    loadSection(raw.toLowerCase());
+  });
+});
