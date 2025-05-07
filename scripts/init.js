@@ -1,31 +1,24 @@
 // scripts/init.js
 
 import { setupItems } from './setupItems.js';
-import { setupOverview } from './overview.js';
-import { setupInvoices } from './invoices.js';
-import { setupCreateInvoice } from './create-invoice.js';
-// Add more as needed...
+import { setupInvoices } from './setupInvoices.js';
+import { setupSave } from './setupSave.js';
+// 'inventory.js' is a helper module, no setup function expected
+// 'index.js' is likely for loading shared HTML partials
 
 window.addEventListener('DOMContentLoaded', () => {
-  // Item form + table
+  // Item entry form + inventory display
   if (document.getElementById('addForm') && document.getElementById('itemDisplay')) {
     setupItems();
   }
 
-  // Overview totals page
-  if (document.getElementById('overviewDisplay')) {
-    setupOverview();
-  }
-
-  // Invoice listing page
+  // Invoice listing
   if (document.getElementById('invoiceList')) {
     setupInvoices();
   }
 
-  // Create invoice page
-  if (document.getElementById('invoiceForm')) {
-    setupCreateInvoice();
+  // GitHub save page
+  if (document.getElementById('setup-credentials')) {
+    setupSave();
   }
-
-  // Add any additional sections below with similar checks
 });
