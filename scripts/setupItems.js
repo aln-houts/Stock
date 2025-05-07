@@ -126,3 +126,7 @@ function renderTable(data, options = {}) {
     </table>
   `;
 }
+// Only auto-run if its matching HTML is present
+if (document.getElementById('addForm') && document.getElementById('itemDisplay')) {
+  setupItems();
+}
