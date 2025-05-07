@@ -18,7 +18,8 @@ This is a lightweight inventory management web app for tracking various garment 
 1. Clone or download this repo:
    ```bash
    git clone https://github.com/aln-houts/Stock.git
-   
+   ```
+
 2. Open index.html in a browser:
 
 Use a query string like ?type=tees, ?type=tanks, or ?type=hoodies to load a category:
@@ -30,7 +31,7 @@ Enter style, color, select size (if applicable), and quantity.
 
 Items will appear in the inventory table below.
 
-structure 
+## Structure
 Stock/
 │
 ├── index.html              # Main page with form and inventory table
@@ -43,10 +44,9 @@ Stock/
 ├── manifest.json, sw.js    # Progressive Web App support
 └── data/                   # Future use or static content
 
-Deployment
+## Deployment
+
 This app is static and can be hosted on GitHub Pages:
 
-Push to a public GitHub repo
-
-Enable GitHub Pages under repo settings (source: / (root))
-
+1. Push to a public GitHub repo
+2. Enable GitHub Pages under repo settings (source: / (root))
