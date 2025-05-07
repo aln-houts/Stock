@@ -1,0 +1,89 @@
+<div class="container">
+    <div class="row">
+        <!-- Add Item Form -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Add New Item</h5>
+                </div>
+                <div class="card-body">
+                    <form id="addItemForm">
+                        <div class="mb-3">
+                            <label for="style" class="form-label">Style</label>
+                            <input type="text" class="form-control" id="style" list="styleSuggestions" required>
+                            <datalist id="styleSuggestions"></datalist>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="color" class="form-label">Color</label>
+                            <input type="text" class="form-control" id="color" list="colorSuggestions" required>
+                            <datalist id="colorSuggestions"></datalist>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="size" class="form-label">Size</label>
+                            <select class="form-select" id="size" required>
+                                <option value="">Select Size</option>
+                                <option value="XS">XS</option>
+                                <option value="S">S</option>
+                                <option value="M">M</option>
+                                <option value="L">L</option>
+                                <option value="XL">XL</option>
+                                <option value="XXL">XXL</option>
+                                <option value="3X">3X</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="quantity" class="form-label">Quantity</label>
+                            <input type="number" class="form-control" id="quantity" min="1" required>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary w-100">Add to Inventory</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inventory Display -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Current Inventory</h5>
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-outline-secondary" id="refreshBtn">
+                            <i class="bi bi-arrow-clockwise"></i> Refresh
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary" id="exportBtn">
+                            <i class="bi bi-download"></i> Export
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Style</th>
+                                    <th>Color</th>
+                                    <th>XS</th>
+                                    <th>S</th>
+                                    <th>M</th>
+                                    <th>L</th>
+                                    <th>XL</th>
+                                    <th>XXL</th>
+                                    <th>3X</th>
+                                    <th>Total</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inventoryTableBody">
+                                <!-- Inventory items will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 
