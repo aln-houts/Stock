@@ -63,26 +63,56 @@ export class CategoryManager {
         const dropdown = document.getElementById('categoriesDropdown');
         if (!dropdown) return;
 
-        // Keep the first two items (Manage Categories and divider)
-        const staticItems = dropdown.innerHTML.split('<!-- Category items will be added here dynamically -->')[0];
-        
-        // Add category items
-        const categoryItems = this.categories.map(category => `
+        // Get the static items (just Manage Categories)
+        const staticItems = `
             <li>
-                <a class="dropdown-item" href="#" data-category="${category.id}">
-                    <i class="bi bi-folder"></i> ${category.name}
+                <a class="nav-link" href="#" data-page="categories">
+                    <i class="bi bi-gear"></i> Manage Categories
                 </a>
             </li>
-        `).join('');
+            <li><hr class="dropdown-divider"></li>
+        `;
+        
+        // Add category items
+        const categoryItems = this.categories.map(category => {
+            const categorySlug = category.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+            return `
+                <li>
+                    <a class="nav-link" href="#" data-page="inventory" data-category="${category.id}">
+                        <i class="bi bi-folder"></i> ${category.name}
+                    </a>
+                </li>
+            `;
+        }).join('');
 
+        // Update dropdown content
         dropdown.innerHTML = staticItems + categoryItems;
 
-        // Add event listeners to category items
-        dropdown.querySelectorAll('[data-category]').forEach(link => {
+        // Add event listeners to all links
+        dropdown.querySelectorAll('.nav-link').forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
-                const categoryId = e.currentTarget.dataset.category;
-                app.navigateToCategory(categoryId);
+                const page = link.dataset.page;
+                const categoryId = link.dataset.category;
+
+                if (categoryId) {
+                    window.app.navigateToCategory(categoryId);
+                } else if (page) {
+                    window.app.navigateTo(page);
+                }
+            });
+        });
+
+        // Close dropdown after clicking
+        dropdown.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', () => {
+                const dropdownToggle = document.querySelector('.dropdown-toggle');
+                if (dropdownToggle) {
+                    const bsDropdown = bootstrap.Dropdown.getInstance(dropdownToggle);
+                    if (bsDropdown) {
+                        bsDropdown.hide();
+                    }
+                }
             });
         });
     }
@@ -125,7 +155,13 @@ export class CategoryManager {
         const addCategoryBtn = document.getElementById('addCategoryBtn');
         const saveCategoryBtn = document.getElementById('saveCategoryBtn');
         const categoryForm = document.getElementById('categoryForm');
-        const modal = new bootstrap.Modal(document.getElementById('categoryModal'));
+        const modalElement = document.getElementById('categoryModal');
+        const modal = modalElement ? new bootstrap.Modal(modalElement) : null;
+
+        if (!modal) {
+            console.error('Bootstrap modal not initialized. Make sure Bootstrap is properly loaded.');
+            return;
+        }
 
         addCategoryBtn.addEventListener('click', () => {
             this.editingCategoryId = null;
@@ -150,7 +186,7 @@ export class CategoryManager {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
                 const categoryId = e.currentTarget.dataset.category;
-                app.navigateToCategory(categoryId);
+                window.app.navigateToCategory(categoryId);
             });
         });
 
@@ -175,6 +211,9 @@ export class CategoryManager {
         const nameInput = document.getElementById('categoryName');
         const name = nameInput.value.trim();
         
+        // Reset validation state
+        nameInput.classList.remove('is-invalid');
+        
         // Check if name is empty
         if (!name) {
             nameInput.classList.add('is-invalid');
@@ -192,7 +231,6 @@ export class CategoryManager {
             return false;
         }
 
-        nameInput.classList.remove('is-invalid');
         return true;
     }
 
@@ -222,8 +260,13 @@ export class CategoryManager {
         document.getElementById('categoryName').value = category.name;
         document.getElementById('categoryDescription').value = category.description || '';
 
-        const modal = new bootstrap.Modal(document.getElementById('categoryModal'));
-        modal.show();
+        const modalElement = document.getElementById('categoryModal');
+        const modal = modalElement ? new bootstrap.Modal(modalElement) : null;
+        if (modal) {
+            modal.show();
+        } else {
+            console.error('Bootstrap modal not initialized. Make sure Bootstrap is properly loaded.');
+        }
     }
 
     updateCategory() {

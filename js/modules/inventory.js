@@ -164,29 +164,39 @@ export class InventoryManager {
     }
 
     async loadInventory() {
-        try {
-            const response = await fetch('/api/inventory');
-            this.inventory = await response.json();
-            this.updateInventoryDisplay();
-            this.updateSuggestions();
-        } catch (error) {
-            console.error('Error loading inventory:', error);
-            // Fallback to localStorage if API is not available
-            const savedInventory = localStorage.getItem('inventory');
-            if (savedInventory) {
+        // Load from localStorage
+        const savedInventory = localStorage.getItem('inventory');
+        if (savedInventory) {
+            try {
                 this.inventory = JSON.parse(savedInventory);
-                this.updateInventoryDisplay();
-                this.updateSuggestions();
+            } catch (error) {
+                console.error('Error parsing inventory data:', error);
+                this.inventory = [];
             }
+        } else {
+            this.inventory = [];
         }
+
+        // Update suggestions
+        this.styles = new Set(this.inventory.map(item => item.style));
+        this.colors = new Set(this.inventory.map(item => item.color));
+
+        // Update display
+        this.updateInventoryDisplay();
+        this.updateSuggestions();
     }
 
     async addItem() {
         const categoryId = this.currentCategory || document.getElementById('category').value;
-        const style = document.getElementById('style').value;
-        const color = document.getElementById('color').value;
+        const style = document.getElementById('style').value.trim();
+        const color = document.getElementById('color').value.trim();
         const size = document.getElementById('size').value;
         const quantity = parseInt(document.getElementById('quantity').value);
+
+        if (!categoryId || !style || !color || !size || isNaN(quantity)) {
+            alert('Please fill in all fields correctly');
+            return;
+        }
 
         // Add to suggestions
         this.styles.add(style);
@@ -214,20 +224,8 @@ export class InventoryManager {
         // Update quantity
         item.sizes[size] = (item.sizes[size] || 0) + quantity;
 
-        try {
-            // Try to save to API
-            await fetch('/api/inventory', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(item)
-            });
-        } catch (error) {
-            console.error('Error saving to API:', error);
-            // Fallback to localStorage
-            localStorage.setItem('inventory', JSON.stringify(this.inventory));
-        }
+        // Save to localStorage
+        localStorage.setItem('inventory', JSON.stringify(this.inventory));
 
         this.updateInventoryDisplay();
         this.updateSuggestions();
@@ -248,56 +246,65 @@ export class InventoryManager {
         items.forEach(item => {
             const row = document.createElement('tr');
             const total = Object.values(item.sizes).reduce((sum, qty) => sum + qty, 0);
-            const category = app.modules.categories.getCategory(item.categoryId);
 
-            row.innerHTML = `
-                ${this.currentCategory ? '' : `
-                    <td>
-                        <a href="#" class="category-link" data-category="${item.categoryId}">
-                            ${category ? category.name : 'Unknown Category'}
-                        </a>
-                    </td>
-                `}
+            // Add category column if not viewing a specific category
+            if (!this.currentCategory) {
+                const category = app.modules.categories.getCategory(item.categoryId);
+                row.innerHTML += `<td>${category ? category.name : 'Unknown'}</td>`;
+            }
+
+            // Add style and color
+            row.innerHTML += `
                 <td>${item.style}</td>
                 <td>${item.color}</td>
-                <td>${item.sizes.XS || 0}</td>
-                <td>${item.sizes.S || 0}</td>
-                <td>${item.sizes.M || 0}</td>
-                <td>${item.sizes.L || 0}</td>
-                <td>${item.sizes.XL || 0}</td>
-                <td>${item.sizes.XXL || 0}</td>
-                <td>${item.sizes['3X'] || 0}</td>
-                <td>${total}</td>
+            `;
+
+            // Add size columns
+            ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3X'].forEach(size => {
+                const quantity = item.sizes[size] || 0;
+                row.innerHTML += `<td>${quantity}</td>`;
+            });
+
+            // Add total
+            row.innerHTML += `<td>${total}</td>`;
+
+            // Add actions
+            row.innerHTML += `
                 <td>
-                    <button class="btn btn-sm btn-danger remove-item" 
+                    <div class="btn-group btn-group-sm">
+                        <button class="btn btn-outline-primary edit-item" 
                             data-category="${item.categoryId}"
                             data-style="${item.style}"
                             data-color="${item.color}">
-                        <i class="bi bi-trash"></i>
-                    </button>
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="btn btn-outline-danger delete-item"
+                            data-category="${item.categoryId}"
+                            data-style="${item.style}"
+                            data-color="${item.color}">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
                 </td>
             `;
 
             tbody.appendChild(row);
         });
 
-        // Add event listeners for category links
-        tbody.querySelectorAll('.category-link').forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                const categoryId = e.currentTarget.dataset.category;
-                app.navigateToCategory(categoryId);
+        // Add event listeners for edit and delete buttons
+        tbody.querySelectorAll('.edit-item').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const { category, style, color } = e.currentTarget.dataset;
+                this.editItem(category, style, color);
             });
         });
 
-        // Add event listeners for remove buttons
-        tbody.querySelectorAll('.remove-item').forEach(button => {
+        tbody.querySelectorAll('.delete-item').forEach(button => {
             button.addEventListener('click', (e) => {
-                e.preventDefault();
-                const categoryId = e.currentTarget.dataset.category;
-                const style = e.currentTarget.dataset.style;
-                const color = e.currentTarget.dataset.color;
-                this.removeItem(categoryId, style, color);
+                const { category, style, color } = e.currentTarget.dataset;
+                if (confirm('Are you sure you want to delete this item?')) {
+                    this.removeItem(category, style, color);
+                }
             });
         });
     }
