@@ -19,6 +19,7 @@ export class App {
         
         this.currentPage = 'inventory';
         this.setupNavigation();
+        this.initializeTheme();
     }
 
     setupNavigation() {
@@ -112,6 +113,28 @@ export class App {
 
         // Render inventory with category filter
         await this.modules.inventory.render(categoryId);
+    }
+
+    initializeTheme() {
+        // Check for saved theme preference
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-theme');
+        }
+
+        // Add theme toggle button
+        const themeToggle = document.createElement('button');
+        themeToggle.className = 'theme-toggle';
+        themeToggle.innerHTML = '<i class="bi bi-moon-fill"></i>';
+        themeToggle.title = 'Toggle Dark Theme';
+        document.body.appendChild(themeToggle);
+
+        // Add click handler
+        themeToggle.addEventListener('click', () => {
+            const isDark = document.body.classList.toggle('dark-theme');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            themeToggle.innerHTML = isDark ? '<i class="bi bi-sun-fill"></i>' : '<i class="bi bi-moon-fill"></i>';
+        });
     }
 
     // Make navigation methods available globally
