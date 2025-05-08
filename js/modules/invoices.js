@@ -63,10 +63,11 @@ export class InvoiceManager {
         // Use total quantity across all items for tier pricing
         const totalQuantity = this.getTotalQuantity();
         const quantityTier = this.getQuantityTier(totalQuantity);
-        const designPrice = this.pricing.designTiers[designType][quantityTier];
+        const designPrice = this.pricing.designTiers[designType]?.[quantityTier] || 0;
         const transferCost = this.pricing.transferCosts[transferSize] || 0;
 
-        return garmentInfo.basePrice + designPrice + transferCost;
+        const price = garmentInfo.basePrice + designPrice + transferCost;
+        return isNaN(price) ? 0 : price;
     }
 
     render() {
@@ -580,14 +581,19 @@ export class InvoiceManager {
             date: document.getElementById('invoiceDate').value,
             customerName: document.getElementById('customerName').value,
             customerEmail: document.getElementById('customerEmail').value,
-            items: Array.from(document.querySelectorAll('.line-item')).map(item => ({
-                garment: item.querySelector('.garment-type').value,
-                designType: item.querySelector('.design-type').value,
-                transferSize: item.querySelector('.transfer-size').value,
-                quantity: parseFloat(item.querySelector('.quantity').value),
-                price: parseFloat(item.querySelector('.price').value),
-                total: parseFloat(item.querySelector('input[readonly]').value.replace('$', ''))
-            })),
+            items: Array.from(document.querySelectorAll('.line-item')).map(item => {
+                const quantity = parseFloat(item.querySelector('.quantity').value) || 0;
+                const price = parseFloat(item.querySelector('.price').value.replace('$', '')) || 0;
+                const total = quantity * price;
+                return {
+                    garment: item.querySelector('.garment-type').value,
+                    designType: item.querySelector('.design-type').value,
+                    transferSize: item.querySelector('.transfer-size').value,
+                    quantity: quantity,
+                    price: price,
+                    total: total
+                };
+            }),
             subtotal: parseFloat(document.getElementById('subtotal').textContent.replace('$', '')),
             tax: parseFloat(document.getElementById('tax').textContent.replace('$', '')),
             total: parseFloat(document.getElementById('total').textContent.replace('$', ''))

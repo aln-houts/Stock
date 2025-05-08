@@ -179,8 +179,11 @@ export class SettingsManager {
 
     applySettings() {
         // Apply theme
-        document.body.classList.remove('theme-light', 'theme-dark');
-        document.body.classList.add(`theme-${this.settings.theme}`);
+        if (this.settings.theme === 'dark') {
+            document.body.classList.add('dark-theme');
+        } else {
+            document.body.classList.remove('dark-theme');
+        }
 
         // Show success message
         const alert = document.createElement('div');
