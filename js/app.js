@@ -22,13 +22,15 @@ export class App {
     }
 
     setupNavigation() {
-        const navLinks = document.querySelectorAll('.nav-link');
-        navLinks.forEach(link => {
-            link.addEventListener('click', async (e) => {
-                e.preventDefault();
-                const page = e.target.closest('.nav-link').dataset.page;
+        document.addEventListener('click', async (e) => {
+            const navLink = e.target.closest('.nav-link');
+            if (!navLink) return;
+            
+            e.preventDefault();
+            const page = navLink.dataset.page;
+            if (page) {
                 await this.navigateTo(page);
-            });
+            }
         });
 
         // Handle browser back/forward
@@ -91,11 +93,21 @@ export class App {
             }
         });
 
+        // Get category name
+        const category = this.modules.categories.getCategory(categoryId);
+        if (!category) {
+            console.error('Category not found:', categoryId);
+            return;
+        }
+
+        // Create URL-friendly category name
+        const categorySlug = category.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+
         // Update URL
         window.history.pushState(
             { page: 'inventory', categoryId }, 
             '', 
-            `#inventory/${categoryId}`
+            `#inventory/${categorySlug}`
         );
 
         // Render inventory with category filter
@@ -104,24 +116,28 @@ export class App {
 
     // Make navigation methods available globally
     static init() {
-        window.app = new App();
-        window.app.navigateTo = window.app.navigateTo.bind(window.app);
-        window.app.navigateToCategory = window.app.navigateToCategory.bind(window.app);
-        
-        // Setup event listeners
-        window.app.setupNavigation();
+        const app = new App();
+        window.app = app;
         
         // Handle initial page load
         const hash = window.location.hash.slice(1);
         if (hash) {
-            const [page, categoryId] = hash.split('/');
-            if (categoryId) {
-                window.app.navigateToCategory(categoryId);
+            const [page, categorySlug] = hash.split('/');
+            if (categorySlug) {
+                // Find category by slug
+                const category = app.modules.categories.categories.find(cat => 
+                    cat.name.toLowerCase().replace(/[^a-z0-9]+/g, '-') === categorySlug
+                );
+                if (category) {
+                    app.navigateToCategory(category.id);
+                } else {
+                    app.navigateTo(page);
+                }
             } else {
-                window.app.navigateTo(page);
+                app.navigateTo(page);
             }
         } else {
-            window.app.navigateTo('inventory');
+            app.navigateTo('inventory');
         }
     }
 }
