@@ -4,15 +4,17 @@ import { ReportsManager } from './modules/reports.js';
 import { SettingsManager } from './modules/settings.js';
 import { CategoryManager } from './modules/categories.js';
 import { InvoiceManager } from './modules/invoices.js';
+import { DataManager } from './modules/dataManager.js';
 
-class App {
+export class App {
     constructor() {
         this.modules = {
             inventory: new InventoryManager(),
+            categories: new CategoryManager(),
             reports: new ReportsManager(),
             settings: new SettingsManager(),
-            categories: new CategoryManager(),
-            invoices: new InvoiceManager()
+            invoices: new InvoiceManager(),
+            dataManager: new DataManager()
         };
         
         this.currentPage = 'inventory';
@@ -20,12 +22,12 @@ class App {
     }
 
     setupNavigation() {
-        // Navigation links
-        document.querySelectorAll('[data-page]').forEach(link => {
-            link.addEventListener('click', (e) => {
+        const navLinks = document.querySelectorAll('.nav-link');
+        navLinks.forEach(link => {
+            link.addEventListener('click', async (e) => {
                 e.preventDefault();
-                const page = e.currentTarget.dataset.page;
-                this.navigateTo(page);
+                const page = e.target.closest('.nav-link').dataset.page;
+                await this.navigateTo(page);
             });
         });
 
@@ -58,17 +60,20 @@ class App {
             case 'inventory':
                 await this.modules.inventory.render();
                 break;
+            case 'categories':
+                await this.modules.categories.render();
+                break;
             case 'reports':
                 await this.modules.reports.render();
                 break;
             case 'settings':
                 await this.modules.settings.render();
                 break;
-            case 'categories':
-                await this.modules.categories.render();
-                break;
             case 'invoices':
                 await this.modules.invoices.render();
+                break;
+            case 'dataManager':
+                await this.modules.dataManager.render();
                 break;
             default:
                 await this.modules.inventory.render();
