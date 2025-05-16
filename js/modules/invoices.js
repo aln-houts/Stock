@@ -375,23 +375,42 @@ export class InvoiceManager {
         });
     }
 
-    updateLineItemTotal(lineItem) {
-        const quantity = parseFloat(lineItem.querySelector('.quantity').value) || 0;
-        const priceInput = lineItem.querySelector('.price');
-        const price = parseFloat(priceInput.value.replace('$', '')) || 0;
-        const total = quantity * price;
-        
-        // Create or update total display
-        let totalDisplay = lineItem.querySelector('.total-display');
-        if (!totalDisplay) {
-            totalDisplay = document.createElement('div');
-            totalDisplay.className = 'col-md-2 total-display';
-            lineItem.appendChild(totalDisplay);
-        }
-        totalDisplay.innerHTML = `<input type="text" class="form-control form-control-sm" value="$${total.toFixed(2)}" readonly>`;
-        
-        this.updateTotals();
+/**
+ * Recalculates and displays:
+ * 1) The unit price in the .price input
+ * 2) The line-item total (unit price × quantity) in the total-display
+ * 3) Updates the invoice subtotals
+ */
+updateLineItemTotal(lineItem) {
+    // 1) Read quantity
+    const quantity = parseFloat(lineItem.querySelector('.quantity').value) || 0;
+
+    // 2) Read selections to compute unit price
+    const garment      = lineItem.querySelector('.garment-type').value;
+    const designType   = lineItem.querySelector('.design-type').value;
+    const transferSize = lineItem.querySelector('.transfer-size').value;
+
+    // 3) Compute unit price at quantity = 1
+    const unitPrice = this.calculateItemPrice(garment, designType, transferSize, 1);
+
+    // 4) Show unit price in the .price input
+    const priceInput = lineItem.querySelector('.price');
+    priceInput.value = `$${unitPrice.toFixed(2)}`;
+
+    // 5) Compute and display line-item total
+    const total = unitPrice * quantity;
+    let totalDisplay = lineItem.querySelector('.total-display');
+    if (!totalDisplay) {
+        totalDisplay = document.createElement('div');
+        totalDisplay.className = 'col-md-2 total-display';
+        lineItem.appendChild(totalDisplay);
     }
+    // Display as read-only text
+    totalDisplay.innerHTML = `<input type="text" class="form-control form-control-sm" value="$${total.toFixed(2)}" readonly>`;
+
+    // 6) Recalculate and show invoice subtotals, tax, and grand total
+    this.updateTotals();
+}
 
     validateInvoiceForm() {
         const form = document.getElementById('invoiceForm');
