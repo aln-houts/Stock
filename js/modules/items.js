@@ -92,23 +92,34 @@ const ItemManager = {
             const row = document.createElement('tr');
             const total = Object.values(item.sizes).reduce((sum, qty) => sum + qty, 0);
 
-            row.innerHTML = `
-                <td>${item.style}</td>
-                <td>${item.color}</td>
-                <td>${item.sizes.XS || 0}</td>
-                <td>${item.sizes.S || 0}</td>
-                <td>${item.sizes.M || 0}</td>
-                <td>${item.sizes.L || 0}</td>
-                <td>${item.sizes.XL || 0}</td>
-                <td>${item.sizes.XXL || 0}</td>
-                <td>${item.sizes['3X'] || 0}</td>
-                <td>${total}</td>
-                <td>
-                    <button class="btn btn-sm btn-danger" onclick="ItemManager.removeItem('${item.style}', '${item.color}')">
-                        <i class="bi bi-trash"></i>
-                    </button>
-                </td>
-            `;
+    // ─── inside updateInventoryDisplay() ───
+    row.innerHTML = `
+        <td>${item.style}</td>
+        <td>${item.color}</td>
+        <td>${item.sizes.XS || 0}</td>
+        <td>${item.sizes.S || 0}</td>
+        <td>${item.sizes.M || 0}</td>
+        <td>${item.sizes.L || 0}</td>
+        <td>${item.sizes.XL || 0}</td>
+        <td>${item.sizes.XXL || 0}</td>
+        <td>${item.sizes['3X'] || 0}</td>
+        <td>${total}</td>
+        <td>
+            <!-- EDIT button -->
+            <button 
+              class="btn btn-sm btn-secondary me-1" 
+              onclick="ItemManager.editItem('${item.style}', '${item.color}')">
+                <i class="bi bi-pencil"></i>
+            </button>
+
+            <!-- DELETE button -->
+            <button 
+              class="btn btn-sm btn-danger" 
+              onclick="ItemManager.removeItem('${item.style}', '${item.color}')">
+                <i class="bi bi-trash"></i>
+            </button>
+        </td>
+    `;
 
             tbody.appendChild(row);
         });
@@ -138,6 +149,34 @@ const ItemManager = {
             this.updateInventoryDisplay();
         }
     },
+        /**
+     * Load an existing item into the form for editing,
+     * then remove it from inventory so re-adding updates correctly.
+     */
+    editItem(style, color) {
+        // Find the item
+        const idx = this.inventory.findIndex(i => i.style === style && i.color === color);
+        if (idx === -1) return;
+
+        const item = this.inventory[idx];
+
+        // Populate the form fields
+        document.getElementById('style').value = item.style;
+        document.getElementById('color').value = item.color;
+
+        // Pick the first non-zero size
+        const firstSize = Object.keys(item.sizes).find(s => item.sizes[s] > 0);
+        if (firstSize) {
+            document.getElementById('size').value = firstSize;
+            document.getElementById('quantity').value = item.sizes[firstSize];
+        }
+
+        // Remove the item so the updated values get re-added on submit
+        this.inventory.splice(idx, 1);
+        this.saveInventory();
+        this.updateInventoryDisplay();
+    },
+    
 
     // Export inventory to CSV
     exportInventory() {
