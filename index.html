@@ -71,5 +71,19 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Main Application -->
     <script type="module" src="js/app.js"></script>
+    <script>
+        const navCollapse = document.querySelector('.navbar-collapse');
+    const navLinks    = document.querySelectorAll('.navbar-collapse .nav-link');
+
+    navLinks.forEach(link => {
+      link.addEventListener('click', () => {
+        // If the collapse is open, trigger its hide method
+        const bsCollapse = bootstrap.Collapse.getInstance(navCollapse);
+        if (bsCollapse && navCollapse.classList.contains('show')) {
+          bsCollapse.hide();
+        }
+      });
+    });
+</script>
 </body>
 </html> 
