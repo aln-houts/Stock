@@ -422,43 +422,41 @@ updateLineItemTotal(lineItem) {
     }
 
 /**
- * Sum up each line-item’s total and update the invoice summary.
+/**
+ * Sum each line’s Total column, then update Subtotal, Tax, and Total.
  */
 updateTotals() {
   let subtotal = 0;
 
-  // Iterate over every line-item row
+  // For every row in the invoice form
   document.querySelectorAll('.line-item').forEach(item => {
+    // Try to read a readonly <input> in the Total column
     let lineTotal = 0;
-
-    // 1) Try to read from a readonly <input>
-    const totalInput = item.querySelector('input[readonly]');
-    if (totalInput) {
-      lineTotal = parseFloat(
-        totalInput.value.replace(/[^0-9.-]+/g, '')
-      ) || 0;
+    const totInput = item.querySelector('input[readonly]');
+    if (totInput) {
+      // e.g. "$1276.00"
+      lineTotal = parseFloat(totInput.value.replace(/[^0-9.-]+/g, '')) || 0;
     } else {
-      // 2) Fallback: read from a .total-display element’s text
-      const disp = item.querySelector('.total-display');
-      if (disp) {
-        lineTotal = parseFloat(
-          disp.textContent.replace(/[^0-9.-]+/g, '')
-        ) || 0;
+      // Fallback: grab the last <td> in this row
+      const tds = item.querySelectorAll('td');
+      if (tds.length) {
+        const text = tds[tds.length - 1].textContent;
+        lineTotal = parseFloat(text.replace(/[^0-9.-]+/g, '')) || 0;
       }
     }
-
     subtotal += lineTotal;
   });
 
-  // 10% tax
+  // Calculate tax (10%) and grand total
   const tax = subtotal * 0.10;
   const grandTotal = subtotal + tax;
 
-  // Update the DOM
+  // Update the summary fields in the DOM
   document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
   document.getElementById('tax').textContent      = `$${tax.toFixed(2)}`;
   document.getElementById('total').textContent    = `$${grandTotal.toFixed(2)}`;
 }
+
 
 
     saveInvoice() {
