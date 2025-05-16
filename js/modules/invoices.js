@@ -421,23 +421,45 @@ updateLineItemTotal(lineItem) {
         return true;
     }
 
-    updateTotals() {
-        let subtotal = 0;
-        document.querySelectorAll('.line-item').forEach(item => {
-            const totalInput = item.querySelector('input[readonly]');
-            if (totalInput) {
-                const total = parseFloat(totalInput.value.replace('$', '')) || 0;
-                subtotal += total;
-            }
-        });
+/**
+ * Sum up each line-item’s total and update the invoice summary.
+ */
+updateTotals() {
+  let subtotal = 0;
 
-        const tax = subtotal * 0.1; // 10% tax
-        const total = subtotal + tax;
+  // Iterate over every line-item row
+  document.querySelectorAll('.line-item').forEach(item => {
+    let lineTotal = 0;
 
-        document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
-        document.getElementById('tax').textContent = `$${tax.toFixed(2)}`;
-        document.getElementById('total').textContent = `$${total.toFixed(2)}`;
+    // 1) Try to read from a readonly <input>
+    const totalInput = item.querySelector('input[readonly]');
+    if (totalInput) {
+      lineTotal = parseFloat(
+        totalInput.value.replace(/[^0-9.-]+/g, '')
+      ) || 0;
+    } else {
+      // 2) Fallback: read from a .total-display element’s text
+      const disp = item.querySelector('.total-display');
+      if (disp) {
+        lineTotal = parseFloat(
+          disp.textContent.replace(/[^0-9.-]+/g, '')
+        ) || 0;
+      }
     }
+
+    subtotal += lineTotal;
+  });
+
+  // 10% tax
+  const tax = subtotal * 0.10;
+  const grandTotal = subtotal + tax;
+
+  // Update the DOM
+  document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
+  document.getElementById('tax').textContent      = `$${tax.toFixed(2)}`;
+  document.getElementById('total').textContent    = `$${grandTotal.toFixed(2)}`;
+}
+
 
     saveInvoice() {
         const invoice = {
