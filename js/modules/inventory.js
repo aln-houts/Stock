@@ -651,44 +651,16 @@ export class InventoryManager {
         this.updateInventoryDisplay();
     }
 
-editItem(itemId) {
-    // 1) Find item
-    const item = this.inventory.find(i => i.id === itemId);
-    if (!item) return;
+    editItem(itemId) {
+        const item = this.inventory.find(i => i.id === itemId);
+        if (!item) return;
 
-    // 2) Change modal title
-    const modalEl = document.getElementById('itemModal'); 
-    modalEl.querySelector('.modal-title').textContent = 'Edit Item';
+        const category = app.modules.categories.getCategory(item.categoryId);
+        if (!category) return;
 
-    // 3) Re-open modal for this item's category (this rebuilds formFields)
-    this.openItemModal(item.categoryId); // assume this is your function that shows the modal
-
-    // 4) Populate the hidden ID so save knows it's an edit
-    document.getElementById('editItemId').value = item.id;
-
-    // 5) Populate every field
-    document.getElementById('itemCategory').value = item.categoryId;
-    item.categoryId
-    const category = this.app.modules.categories.getCategory(item.categoryId);
-    category.fields.forEach(field => {
-        const fieldId = `item${field.type.charAt(0).toUpperCase() + field.type.slice(1)}`;
-        const input = document.getElementById(fieldId);
-        if (!input) return;
-
-        // sized items
-        if (field.type === 'size') {
-            // for simplicity, pick first size with qty>0 and put that
-            const first = Object.entries(item.sizes).find(([s, q]) => q > 0);
-            if (first) {
-                document.getElementById('itemSize').value = first[0];
-                document.getElementById('itemQuantity').value = first[1];
-            }
-        } else {
-            input.value = item[field.type] || '';
-        }
-    });
-}
-
+        // TODO: Implement edit functionality
+        console.log('Edit item:', item);
+    }
 
     exportInventory() {
         const headers = ['Category', 'Style', 'Color', 'XS', 'S', 'M', 'L', 'XL', 'XXL', '3X', 'Total'];
@@ -749,9 +721,7 @@ editItem(itemId) {
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-            <form id="addItemForm">
-                <!-- track edit vs add -->
-                <input type="hidden" id="editItemId" value="">
+                <form id="addItemForm">
                     <div class="mb-3">
                         <label for="itemCategory" class="form-label">Category</label>
                         <select class="form-select" id="itemCategory" required>
@@ -778,8 +748,6 @@ editItem(itemId) {
                 const form = modalContent.querySelector('#addItemForm');
                 const categorySelect = form.querySelector('#itemCategory');
                 form.innerHTML = `
-                <!-- keep editId when category changes -->
-                <input type="hidden" id="editItemId" value="${form.querySelector('#editItemId').value}">
                     <div class="mb-3">
                         <label for="itemCategory" class="form-label">Category</label>
                         <select class="form-select" id="itemCategory" required>
@@ -801,17 +769,7 @@ editItem(itemId) {
         const categoryId = document.getElementById('itemCategory').value;
         const category = this.app.modules.categories.getCategory(categoryId);
         if (!category) return;
-        
-        let item;
-        if (editId) {
-            // Edit mode: find and remove old item so we replace it
-            const idx = this.inventory.findIndex(i => i.id === editId);
-            item = this.inventory.splice(idx, 1)[0];
-        } else {
-            // Add mode: create brand-new
-            item = { id: crypto.randomUUID(), createdAt: new Date().toISOString() };
-        }
-        
+
         const item = {
             id: crypto.randomUUID(),
             categoryId,
