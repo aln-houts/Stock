@@ -375,47 +375,23 @@ export class InvoiceManager {
         });
     }
 
-/**
- * Recalculates and displays:
- * 1) The unit price in the .price input
- * 2) The line-item total (unit price × quantity) in the total-display
- * 3) Updates the invoice subtotals
- */
-/**
- * Recalculate unit price & total for one line, 
- * store the total on the element, then refresh the invoice summary.
- */
-updateLineItemTotal(lineItem) {
-  // Read quantity and selections
-  const qty = parseFloat(lineItem.querySelector('.quantity').value) || 0;
-  const g   = lineItem.querySelector('.garment-type').value;
-  const d   = lineItem.querySelector('.design-type').value;
-  const t   = lineItem.querySelector('.transfer-size').value;
-
-  // Compute unit price (quantity = 1) and line total
-  const unitPrice = this.calculateItemPrice(g, d, t, 1);
-  const lineTotal = unitPrice * qty;
-
-  // Show unit price
-  const priceInput = lineItem.querySelector('.price');
-  priceInput.value = `$${unitPrice.toFixed(2)}`;
-
-  // Show line total in .total-display
-  let disp = lineItem.querySelector('.total-display');
-  if (!disp) {
-    disp = document.createElement('div');
-    disp.className = 'col-md-2 total-display';
-    lineItem.appendChild(disp);
-  }
-  disp.textContent = `$${lineTotal.toFixed(2)}`;
-
-  // **Stash** the numeric total onto the element for easy summing
-  lineItem.dataset.lineTotal = lineTotal;
-
-  // Recompute the invoice summary
-  this.updateTotals();
-}
-
+    updateLineItemTotal(lineItem) {
+        const quantity = parseFloat(lineItem.querySelector('.quantity').value) || 0;
+        const priceInput = lineItem.querySelector('.price');
+        const price = parseFloat(priceInput.value.replace('$', '')) || 0;
+        const total = quantity * price;
+        
+        // Create or update total display
+        let totalDisplay = lineItem.querySelector('.total-display');
+        if (!totalDisplay) {
+            totalDisplay = document.createElement('div');
+            totalDisplay.className = 'col-md-2 total-display';
+            lineItem.appendChild(totalDisplay);
+        }
+        totalDisplay.innerHTML = `<input type="text" class="form-control form-control-sm" value="$${total.toFixed(2)}" readonly>`;
+        
+        this.updateTotals();
+    }
 
     validateInvoiceForm() {
         const form = document.getElementById('invoiceForm');
@@ -426,28 +402,23 @@ updateLineItemTotal(lineItem) {
         return true;
     }
 
-/**
- * Sum the previously stored line-totals and update Subtotal, Tax, Total.
- */
-updateTotals() {
-  // Sum all line-item totals (from dataset)
-  const subtotal = Array.from(document.querySelectorAll('.line-item'))
-    .reduce((sum, li) => {
-      return sum + (parseFloat(li.dataset.lineTotal) || 0);
-    }, 0);
+    updateTotals() {
+        let subtotal = 0;
+        document.querySelectorAll('.line-item').forEach(item => {
+            const totalInput = item.querySelector('input[readonly]');
+            if (totalInput) {
+                const total = parseFloat(totalInput.value.replace('$', '')) || 0;
+                subtotal += total;
+            }
+        });
 
-  // Load dynamic taxRate (%) from settings
-  const settings = this.app.modules.settings.getSettings();
-  const taxRate  = (parseFloat(settings.taxRate) || 0) / 100;
+        const tax = subtotal * 0.1; // 10% tax
+        const total = subtotal + tax;
 
-  const tax        = subtotal * taxRate;
-  const grandTotal = subtotal + tax;
-
-  // Update the DOM
-  document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
-  document.getElementById('tax').textContent      = `$${tax.toFixed(2)}`;
-  document.getElementById('total').textContent    = `$${grandTotal.toFixed(2)}`;
-}
+        document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
+        document.getElementById('tax').textContent = `$${tax.toFixed(2)}`;
+        document.getElementById('total').textContent = `$${total.toFixed(2)}`;
+    }
 
     saveInvoice() {
         const invoice = {
@@ -604,38 +575,28 @@ updateTotals() {
         printWindow.document.close();
     }
 
-    /**
- * Gather all current line-items, recalc totals properly,
- * then pull subtotal/tax/total from the DOM summary for preview.
- */
-		getCurrentInvoiceData() {
-  // 1) Collect each row’s data into an array
-  const items = Array.from(document.querySelectorAll('.line-item')).map(line => {
-    const garment      = line.querySelector('.garment-type').value;
-    const designType   = line.querySelector('.design-type').value;
-    const transferSize = line.querySelector('.transfer-size').value;
-    const quantity     = parseInt(line.querySelector('.quantity').value.replace(/[^0-9\-]+/g, ''), 10) || 0;
-    const price        = parseFloat(
-      line.querySelector('.price').value.replace(/[^0-9.-]+/g, '')
-    ) || 0;
-
-    // **TOTAL** is always quantity × unit price
-    const total = quantity * price;
-
-    return { garment, designType, transferSize, quantity, price, total };
-  });
-
-  // 2) Read the invoice summary fields (subtotal, tax, total)
-  const subtotal = parseFloat(
-    document.getElementById('subtotal').textContent.replace(/[^0-9.-]+/g, '')
-  ) || 0;
-  const tax      = parseFloat(
-    document.getElementById('tax').textContent.replace(/[^0-9.-]+/g, '')
-  ) || 0;
-  const total    = parseFloat(
-    document.getElementById('total').textContent.replace(/[^0-9.-]+/g, '')
-  ) || 0;
-
-  // 3) Return the full dataset
-  return { items, subtotal, tax, total };
-}
+    getCurrentInvoiceData() {
+        return {
+            number: document.getElementById('invoiceNumber').value,
+            date: document.getElementById('invoiceDate').value,
+            customerName: document.getElementById('customerName').value,
+            customerEmail: document.getElementById('customerEmail').value,
+            items: Array.from(document.querySelectorAll('.line-item')).map(item => {
+                const quantity = parseFloat(item.querySelector('.quantity').value) || 0;
+                const price = parseFloat(item.querySelector('.price').value.replace('$', '')) || 0;
+                const total = quantity * price;
+                return {
+                    garment: item.querySelector('.garment-type').value,
+                    designType: item.querySelector('.design-type').value,
+                    transferSize: item.querySelector('.transfer-size').value,
+                    quantity: quantity,
+                    price: price,
+                    total: total
+                };
+            }),
+            subtotal: parseFloat(document.getElementById('subtotal').textContent.replace('$', '')),
+            tax: parseFloat(document.getElementById('tax').textContent.replace('$', '')),
+            total: parseFloat(document.getElementById('total').textContent.replace('$', ''))
+        };
+    }
+} 
