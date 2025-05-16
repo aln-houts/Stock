@@ -608,28 +608,38 @@ updateTotals() {
         printWindow.document.close();
     }
 
-    getCurrentInvoiceData() {
-        return {
-            number: document.getElementById('invoiceNumber').value,
-            date: document.getElementById('invoiceDate').value,
-            customerName: document.getElementById('customerName').value,
-            customerEmail: document.getElementById('customerEmail').value,
-            items: Array.from(document.querySelectorAll('.line-item')).map(item => {
-                const quantity = parseFloat(item.querySelector('.quantity').value) || 0;
-                const price = parseFloat(item.querySelector('.price').value.replace('$', '')) || 0;
-                const total = quantity * price;
-                return {
-                    garment: item.querySelector('.garment-type').value,
-                    designType: item.querySelector('.design-type').value,
-                    transferSize: item.querySelector('.transfer-size').value,
-                    quantity: quantity,
-                    price: price,
-                    total: total
-                };
-            }),
-            subtotal: parseFloat(document.getElementById('subtotal').textContent.replace('$', '')),
-            tax: parseFloat(document.getElementById('tax').textContent.replace('$', '')),
-            total: parseFloat(document.getElementById('total').textContent.replace('$', ''))
-        };
-    }
-} 
+    /**
+ * Gather all current line-items, recalc totals properly,
+ * then pull subtotal/tax/total from the DOM summary for preview.
+ */
+		getCurrentInvoiceData() {
+  // 1) Collect each row’s data into an array
+  const items = Array.from(document.querySelectorAll('.line-item')).map(line => {
+    const garment      = line.querySelector('.garment-type').value;
+    const designType   = line.querySelector('.design-type').value;
+    const transferSize = line.querySelector('.transfer-size').value;
+    const quantity     = parseInt(line.querySelector('.quantity').value.replace(/[^0-9\-]+/g, ''), 10) || 0;
+    const price        = parseFloat(
+      line.querySelector('.price').value.replace(/[^0-9.-]+/g, '')
+    ) || 0;
+
+    // **TOTAL** is always quantity × unit price
+    const total = quantity * price;
+
+    return { garment, designType, transferSize, quantity, price, total };
+  });
+
+  // 2) Read the invoice summary fields (subtotal, tax, total)
+  const subtotal = parseFloat(
+    document.getElementById('subtotal').textContent.replace(/[^0-9.-]+/g, '')
+  ) || 0;
+  const tax      = parseFloat(
+    document.getElementById('tax').textContent.replace(/[^0-9.-]+/g, '')
+  ) || 0;
+  const total    = parseFloat(
+    document.getElementById('total').textContent.replace(/[^0-9.-]+/g, '')
+  ) || 0;
+
+  // 3) Return the full dataset
+  return { items, subtotal, tax, total };
+}
