@@ -381,36 +381,41 @@ export class InvoiceManager {
  * 2) The line-item total (unit price × quantity) in the total-display
  * 3) Updates the invoice subtotals
  */
+/**
+ * Recalculate unit price & total for one line, 
+ * store the total on the element, then refresh the invoice summary.
+ */
 updateLineItemTotal(lineItem) {
-    // 1) Read quantity
-    const quantity = parseFloat(lineItem.querySelector('.quantity').value) || 0;
+  // Read quantity and selections
+  const qty = parseFloat(lineItem.querySelector('.quantity').value) || 0;
+  const g   = lineItem.querySelector('.garment-type').value;
+  const d   = lineItem.querySelector('.design-type').value;
+  const t   = lineItem.querySelector('.transfer-size').value;
 
-    // 2) Read selections to compute unit price
-    const garment      = lineItem.querySelector('.garment-type').value;
-    const designType   = lineItem.querySelector('.design-type').value;
-    const transferSize = lineItem.querySelector('.transfer-size').value;
+  // Compute unit price (quantity = 1) and line total
+  const unitPrice = this.calculateItemPrice(g, d, t, 1);
+  const lineTotal = unitPrice * qty;
 
-    // 3) Compute unit price at quantity = 1
-    const unitPrice = this.calculateItemPrice(garment, designType, transferSize, 1);
+  // Show unit price
+  const priceInput = lineItem.querySelector('.price');
+  priceInput.value = `$${unitPrice.toFixed(2)}`;
 
-    // 4) Show unit price in the .price input
-    const priceInput = lineItem.querySelector('.price');
-    priceInput.value = `$${unitPrice.toFixed(2)}`;
+  // Show line total in .total-display
+  let disp = lineItem.querySelector('.total-display');
+  if (!disp) {
+    disp = document.createElement('div');
+    disp.className = 'col-md-2 total-display';
+    lineItem.appendChild(disp);
+  }
+  disp.textContent = `$${lineTotal.toFixed(2)}`;
 
-    // 5) Compute and display line-item total
-    const total = unitPrice * quantity;
-    let totalDisplay = lineItem.querySelector('.total-display');
-    if (!totalDisplay) {
-        totalDisplay = document.createElement('div');
-        totalDisplay.className = 'col-md-2 total-display';
-        lineItem.appendChild(totalDisplay);
-    }
-    // Display as read-only text
-    totalDisplay.innerHTML = `<input type="text" class="form-control form-control-sm" value="$${total.toFixed(2)}" readonly>`;
+  // **Stash** the numeric total onto the element for easy summing
+  lineItem.dataset.lineTotal = lineTotal;
 
-    // 6) Recalculate and show invoice subtotals, tax, and grand total
-    this.updateTotals();
+  // Recompute the invoice summary
+  this.updateTotals();
 }
+
 
     validateInvoiceForm() {
         const form = document.getElementById('invoiceForm');
@@ -422,36 +427,27 @@ updateLineItemTotal(lineItem) {
     }
 
 /**
- * Sum each line’s .total-display, then update Subtotal, Tax, and Total
- * using the taxRate from Settings.
+ * Sum the previously stored line-totals and update Subtotal, Tax, Total.
  */
 updateTotals() {
-  let subtotal = 0;
+  // Sum all line-item totals (from dataset)
+  const subtotal = Array.from(document.querySelectorAll('.line-item'))
+    .reduce((sum, li) => {
+      return sum + (parseFloat(li.dataset.lineTotal) || 0);
+    }, 0);
 
-  // 1) Sum up each line's total from the .total-display element
-  document.querySelectorAll('.line-item').forEach(item => {
-    const disp = item.querySelector('.total-display');
-    if (disp) {
-      const val = parseFloat(disp.textContent.replace(/[^0-9.-]+/g, '')) || 0;
-      subtotal += val;
-    }
-  });
-
-  // 2) Fetch taxRate (%) from your SettingsManager
+  // Load dynamic taxRate (%) from settings
   const settings = this.app.modules.settings.getSettings();
   const taxRate  = (parseFloat(settings.taxRate) || 0) / 100;
 
-  // 3) Calculate tax and grand total
   const tax        = subtotal * taxRate;
   const grandTotal = subtotal + tax;
 
-  // 4) Write back to the DOM
+  // Update the DOM
   document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
   document.getElementById('tax').textContent      = `$${tax.toFixed(2)}`;
   document.getElementById('total').textContent    = `$${grandTotal.toFixed(2)}`;
 }
-
-
 
     saveInvoice() {
         const invoice = {
