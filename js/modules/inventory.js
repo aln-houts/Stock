@@ -548,10 +548,6 @@ export class InventoryManager {
             row.innerHTML += `
                 <td>
                     <div class="btn-group btn-group-sm">
-                        <button class="btn btn-outline-primary edit-item" 
-                            data-item-id="${item.id}">
-                            <i class="bi bi-pencil"></i>
-                        </button>
                         <button class="btn btn-outline-danger delete-item"
                             data-item-id="${item.id}">
                             <i class="bi bi-trash"></i>
