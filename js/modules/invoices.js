@@ -422,36 +422,30 @@ updateLineItemTotal(lineItem) {
     }
 
 /**
-/**
- * Sum each line’s Total column, then update Subtotal, Tax, and Total.
+ * Sum each line’s .total-display, then update Subtotal, Tax, and Total
+ * using the taxRate from Settings.
  */
 updateTotals() {
   let subtotal = 0;
 
-  // For every row in the invoice form
+  // 1) Sum up each line's total from the .total-display element
   document.querySelectorAll('.line-item').forEach(item => {
-    // Try to read a readonly <input> in the Total column
-    let lineTotal = 0;
-    const totInput = item.querySelector('input[readonly]');
-    if (totInput) {
-      // e.g. "$1276.00"
-      lineTotal = parseFloat(totInput.value.replace(/[^0-9.-]+/g, '')) || 0;
-    } else {
-      // Fallback: grab the last <td> in this row
-      const tds = item.querySelectorAll('td');
-      if (tds.length) {
-        const text = tds[tds.length - 1].textContent;
-        lineTotal = parseFloat(text.replace(/[^0-9.-]+/g, '')) || 0;
-      }
+    const disp = item.querySelector('.total-display');
+    if (disp) {
+      const val = parseFloat(disp.textContent.replace(/[^0-9.-]+/g, '')) || 0;
+      subtotal += val;
     }
-    subtotal += lineTotal;
   });
 
-  // Calculate tax (10%) and grand total
-  const tax = subtotal * 0.10;
+  // 2) Fetch taxRate (%) from your SettingsManager
+  const settings = this.app.modules.settings.getSettings();
+  const taxRate  = (parseFloat(settings.taxRate) || 0) / 100;
+
+  // 3) Calculate tax and grand total
+  const tax        = subtotal * taxRate;
   const grandTotal = subtotal + tax;
 
-  // Update the summary fields in the DOM
+  // 4) Write back to the DOM
   document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
   document.getElementById('tax').textContent      = `$${tax.toFixed(2)}`;
   document.getElementById('total').textContent    = `$${grandTotal.toFixed(2)}`;
