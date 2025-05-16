@@ -647,17 +647,6 @@ export class InventoryManager {
         this.updateInventoryDisplay();
     }
 
-    editItem(itemId) {
-        const item = this.inventory.find(i => i.id === itemId);
-        if (!item) return;
-
-        const category = app.modules.categories.getCategory(item.categoryId);
-        if (!category) return;
-
-        // TODO: Implement edit functionality
-        console.log('Edit item:', item);
-    }
-
     exportInventory() {
         const headers = ['Category', 'Style', 'Color', 'XS', 'S', 'M', 'L', 'XL', 'XXL', '3X', 'Total'];
         const items = this.currentCategory 
