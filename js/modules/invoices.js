@@ -413,7 +413,7 @@ export class InvoiceManager {
     updateTotals() {
         let subtotal = 0;
         document.querySelectorAll('.line-item').forEach(item => {
-            const totalInput = item.querySelector('input[readonly]');
+            const totalInput = item.querySelector('.total-display input');
             if (totalInput) {
                 const total = parseFloat(totalInput.value.replace('$', '')) || 0;
                 subtotal += total;
