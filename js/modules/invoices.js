@@ -133,7 +133,7 @@ export class InvoiceManager {
                                                 <td class="text-end" id="subtotal">$0.00</td>
                                             </tr>
                                             <tr>
-                                                <td>Tax (10%):</td>
+                                                <td>Tax (${this.settings.taxRate || 0}%):</td>
                                                 <td class="text-end" id="tax">$0.00</td>
                                             </tr>
                                             <tr class="fw-bold">
