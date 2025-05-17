@@ -315,42 +315,50 @@ export class InvoiceManager {
         const priceInput = lineItem.querySelector('.price');
         const removeBtn = lineItem.querySelector('.remove-item');
 
-        const updatePrice = () => {
-            const garment = garmentSelect.value;
-            const designType = designSelect.value;
-            const transferSize = transferSelect.value;
-            const quantity = parseInt(quantityInput.value) || 0;
+		const updatePrice = () => {
+  const garment      = garmentSelect.value;
+  const designType   = designSelect.value;
+  const transferSize = transferSelect.value;
+  const quantity     = parseInt(quantityInput.value, 10) || 0;
 
-            if (garment && designType && transferSize && quantity > 0) {
-                const price = this.calculateItemPrice(garment, designType, transferSize, quantity);
-                priceInput.value = `$${price.toFixed(2)}`;
-                this.updateLineItemTotal(lineItem);
-            } else {
-                priceInput.value = '';
-            }
-        };
+  if (garment && designType && transferSize && quantity > 0) {
+    // Compute unit price (quantity = 1)
+    const unitPrice = this.calculateItemPrice(garment, designType, transferSize, 1);
+    // Display unit price
+    priceInput.value = `$${unitPrice.toFixed(2)}`;
+    // Let updateLineItemTotal multiply by quantity
+    this.updateLineItemTotal(lineItem);
+  } else {
+    priceInput.value = '';
+  }
+};
+        
+[garmentSelect, designSelect, transferSelect, quantityInput].forEach(element => {
+  element.addEventListener('change', () => {
+    updatePrice();
+    document.querySelectorAll('.line-item').forEach(item => {
+      if (item === lineItem) return;
 
-        // Update price when any selection changes
-        [garmentSelect, designSelect, transferSelect, quantityInput].forEach(element => {
-            element.addEventListener('change', () => {
-                updatePrice();
-                // Update all other line items when quantity changes
-                document.querySelectorAll('.line-item').forEach(item => {
-                    if (item !== lineItem) {
-                        const itemGarment = item.querySelector('.garment-type').value;
-                        const itemDesign = item.querySelector('.design-type').value;
-                        const itemTransfer = item.querySelector('.transfer-size').value;
-                        const itemQuantity = parseInt(item.querySelector('.quantity').value) || 0;
-                        
-                        if (itemGarment && itemDesign && itemTransfer && itemQuantity > 0) {
-                            const itemPrice = this.calculateItemPrice(itemGarment, itemDesign, itemTransfer, itemQuantity);
-                            item.querySelector('.price').value = `$${itemPrice.toFixed(2)}`;
-                            this.updateLineItemTotal(item);
-                        }
-                    }
-                });
-            });
-        });
+      const g = item.querySelector('.garment-type').value;
+      const d = item.querySelector('.design-type').value;
+      const t = item.querySelector('.transfer-size').value;
+      const q = parseInt(item.querySelector('.quantity').value, 10) || 0;
+      const p = item.querySelector('.price');
+
+      if (g && d && t && q > 0) {
+        // Unit price always quantity=1
+        const unitP = this.calculateItemPrice(g, d, t, 1);
+        p.value = `$${unitP.toFixed(2)}`;
+        // Recalc total via your helper
+        this.updateLineItemTotal(item);
+      } else {
+        p.value = '';
+      }
+    });
+  });
+});
+
+
 
         // Initial price update if all fields are filled
         updatePrice();
