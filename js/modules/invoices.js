@@ -420,7 +420,8 @@ export class InvoiceManager {
             }
         });
 
-        const tax = subtotal * 0.1; // 10% tax
+        const taxRate = this.settings.taxRate || 0;
+        const tax = subtotal * (taxRate / 100);
         const total = subtotal + tax;
 
         document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
