@@ -223,7 +223,7 @@ export class ReportsManager {
     "Heather Red":  "#D32F2F",
     "Sand":         "#C2B280",
     "Heather Heliconia":"#E75480",
-    "Heather Military":"#6B8E23"
+    "Heather Military":"#6B8E23",
                         };
                         return colorMap[color.toLowerCase()] || '#CCCCCC';
                     })
