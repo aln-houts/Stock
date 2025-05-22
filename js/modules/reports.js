@@ -214,6 +214,16 @@ export class ReportsManager {
                             'pink': '#FFC0CB',
                             'gray': '#808080',
                             'brown': '#A52A2A'
+                            "Scuba Blue":   "#0075BE",
+    "White":        "#FFFFFF",
+    "Black":        "#000000",
+    "Red":          "#E01B24",
+    "Sapphire":     "#0F52BA",
+    "Charcoal Grey":"#36454F",
+    "Heather Red":  "#D32F2F",
+    "Sand":         "#C2B280",
+    "Heather Heliconia":"#E75480",
+    "Heather Military":"#6B8E23"
                         };
                         return colorMap[color.toLowerCase()] || '#CCCCCC';
                     })
