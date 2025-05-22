@@ -178,58 +178,96 @@ export class ReportsManager {
         });
     }
 
-    generateColorChart() {
-        const colorData = {};
-        this.inventory.forEach(item => {
-            if (!colorData[item.color]) {
-                colorData[item.color] = 0;
-            }
-            if (item.sizes) {
-                // For sized items, sum up all sizes
-                colorData[item.color] += Object.values(item.sizes).reduce((sum, qty) => sum + qty, 0);
-            } else {
-                // For non-sized items, add the quantity directly
-                colorData[item.color] += parseInt(item.quantity) || 0;
-            }
-        });
+generateColorChart() {
+    // 1) Tally up quantities by color
+    const colorData = {};
+    this.inventory.forEach(item => {
+        const qty = item.sizes
+            ? Object.values(item.sizes).reduce((sum, q) => sum + q, 0)
+            : parseInt(item.quantity) || 0;
+        if (qty > 0) {
+            colorData[item.color] = (colorData[item.color] || 0) + qty;
+        }
+    });
 
-        const ctx = document.getElementById('colorChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: Object.keys(colorData),
-                datasets: [{
-                    data: Object.values(colorData),
-                    backgroundColor: Object.keys(colorData).map(color => {
-                        // Map color names to actual colors
-                        const colorMap = {
-                            'black': '#000000',
-                            'white': '#FFFFFF',
-                            'red': '#FF0000',
-                            'blue': '#0000FF',
-                            'green': '#00FF00',
-                            'yellow': '#FFFF00',
-                            'purple': '#800080',
-                            'orange': '#FFA500',
-                            'pink': '#FFC0CB',
-                            'gray': '#808080',
-                            'brown': '#A52A2A'
+    // 2) Full color→hex map from your screenshot
+    const colorMap = {
+      "Antiq Heliconia":    "#E75480",
+      "Azalea":             "#E26DA4",
+      "Graphite Heather":   "#606060",
+      "Antiq Cherry Red":   "#C72C48",
+      "Antque Sapphire":    "#0089CF",
+      "Cardinal Red":       "#8E001C",
+      "Carolina Blue":      "#99CCFF",
+      "Charcoal":           "#555555",
+      "Cherry Red":         "#DA0037",
+      "Coral Silk":         "#E88F8F",
+      "Cornsilk":           "#FFF5BA",
+      "Daisy":              "#FFDE54",
+      "Dark Chocolate":     "#4B3621",
+      "Dark Heather":       "#555A5E",
+      "Gold":               "#F0B323",
+      "Heather Berry":      "#D060A1",
+      "Heather Cardinal":   "#9F1D35",
+      "Heather Indigo":     "#4B627D",
+      "Heather Maroon":     "#A45A64",
+      "Heather Navy":       "#1F305E",
+      "Heather Orange":     "#FF8B4A",
+      "Heather Purple":     "#6B5B95",
+      "Heather Red":        "#D62E29",
+      "Heather Royal":      "#4682B4",
+      "Heather Sapphire":   "#0D4F8B",
+      "Hth Military Grn":   "#6B8E23",
+      "Hthr Heliconia":     "#E75480",
+      "Hthr Irish Green":   "#00A550",
+      "Hthr Rdnt Orchid":   "#C120A2",
+      "Htr Galops Blue":    "#008DAE",
+      "Ice Grey":           "#D3D3D3",
+      "Indigo Blue":        "#26466D",
+      "Iris":               "#5A9DD5",
+      "Irish Green":        "#00843D",
+      "Jade Dome":          "#009C91",
+      "Kelly Green":        "#4CBB17",
+      "Kiwi":               "#97D700",
+      "Light Blue":         "#A1C6EA",
+      "Lime":               "#C7EA46",
+      "Metro Blue":         "#005F89",
+      "Military Green":     "#4B5320"
+    };
 
-                        };
-                        return colorMap[color.toLowerCase()] || '#CCCCCC';
-                    })
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'right'
+    // 3) Build labels + data + hex array
+    const labels = Object.keys(colorData);
+    const data   = labels.map(c => colorData[c]);
+    const bg     = labels.map(c => colorMap[c] || '#CCCCCC');
+
+    // 4) Render the Chart.js doughnut
+    const ctx = document.getElementById('colorChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: bg,
+                borderColor: '#FFFFFF',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: {
+                        boxWidth: 12,
+                        padding: 8
                     }
                 }
             }
-        });
-    }
+        }
+    });
+}
+
 
     generateSizeChart() {
         const sizeData = {
